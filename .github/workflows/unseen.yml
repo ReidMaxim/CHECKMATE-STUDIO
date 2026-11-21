@@ -57,10 +57,10 @@ jobs:
           path: |
             .cache/kokoro
             .cache/stockfish
-          key: storyteller-deps-${{ hashFiles('scripts/install-stockfish.sh', 'scripts/fetch-kokoro.sh') }}
+          key: unseen-fp32-${{ hashFiles('scripts/install-stockfish.sh', 'scripts/fetch-kokoro.sh') }}
       - run: |
           bash scripts/install-stockfish.sh
-          bash scripts/fetch-kokoro.sh
+          bash scripts/fetch-kokoro.sh --fp32
         env:
           KOKORO_DOWNLOAD_TOKEN: ${{ github.token }}
       - run: npm test

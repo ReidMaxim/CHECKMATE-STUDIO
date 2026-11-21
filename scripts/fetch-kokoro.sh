@@ -22,5 +22,9 @@ download() {
   echo "$digest  $target.part" | sha256sum --check
   mv "$target.part" "$target"
 }
-download kokoro-v1.0.int8.onnx 6e742170d309016e5891a994e1ce1559c702a2ccd0075e67ef7157974f6406cb 224416159
+if [[ "${1:-}" == "--fp32" ]]; then
+  download kokoro-v1.0.onnx 7d5df8ecf7d4b1878015a32686053fd0eebe2bc377234608764cc0ef3636a6c5 224414194
+else
+  download kokoro-v1.0.int8.onnx 6e742170d309016e5891a994e1ce1559c702a2ccd0075e67ef7157974f6406cb 224416159
+fi
 download voices-v1.0.bin bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d 227558528

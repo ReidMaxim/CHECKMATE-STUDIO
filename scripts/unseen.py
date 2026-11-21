@@ -336,9 +336,9 @@ def main():
     treatment = next(option for option in options if not args.treatment or option["angle"] == args.treatment)
     scenes, ledger, rates, variation = direct(record, selected, treatment, facts)
     project = project_for(record, selected, treatment, supplied_source, variation)
-    studio = VoiceStudio(ROOT / ".cache/kokoro", args.voice, rates)
+    studio = VoiceStudio(ROOT / ".cache/kokoro", args.voice, rates, model_file="kokoro-v1.0.onnx")
     produce({"scenes": scenes}, "kokoro", ROOT / ".cache/kokoro", args.voice, .95,
-            project=project, stem="unseen", synthesis=studio)
+            project=project, stem="unseen", synthesis=studio, model_label="Kokoro 82M v1.0 FP32")
     storyboard_file = ROOT / "projects/unseen-documentary.json"
     storyboard = compile_project(json.loads(storyboard_file.read_text()))
     duration = sum(scene["frames"] for scene in storyboard["scenes"]) / storyboard["fps"]

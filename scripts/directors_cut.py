@@ -100,7 +100,7 @@ def trim(samples):
     return samples[max(0, active[0]-240):active[-1]+320]
 
 
-def produce(spec, provider, model_dir, voice, rate, *, project=None, stem="director", synthesis=None):
+def produce(spec, provider, model_dir, voice, rate, *, project=None, stem="director", synthesis=None, model_label=None):
     synthesize = synthesis or speaker(provider, model_dir, voice, rate)
     baseline = project.copy() if project else json.loads((ROOT / "projects/legal-mate.json").read_text())
     if project is None:
@@ -148,7 +148,7 @@ def produce(spec, provider, model_dir, voice, rate, *, project=None, stem="direc
             if abs(stream.getnframes() - len(narration)) > SAMPLES:
                 raise ValueError("Normalized audio length drifted by more than one video frame")
     write_wave(ROOT / f"public/{stem}-effects.wav", effects)
-    model = "Kokoro 82M v1.0 INT8" if provider == "kokoro" else "Flite fallback"
+    model = model_label or ("Kokoro 82M v1.0 INT8" if provider == "kokoro" else "Flite fallback")
     baseline.update(presentation="director", captionStyle="boxed", scenes=authored,
                     audio=[dict(asset=f"{stem}-narration.wav", start=0, volume=.90, kind="narration",
                                 label=f"{model} · {voice if provider == 'kokoro' else 'slt'}"),

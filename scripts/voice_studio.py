@@ -36,8 +36,9 @@ def signal(samples, rate):
 
 
 class VoiceStudio:
-    def __init__(self, model_dir, voice, rates):
+    def __init__(self, model_dir, voice, rates, *, model_file="kokoro-v1.0.int8.onnx"):
         self.directory, self.voice, self.rates=model_dir,voice,rates
+        self.model_file = model_file
         self.audit=[]
         self.sessions={}
         self.preferred="portable"
@@ -52,7 +53,7 @@ class VoiceStudio:
             options.inter_op_num_threads=1
             if profile=="portable":
                 options.graph_optimization_level=ort.GraphOptimizationLevel.ORT_DISABLE_ALL
-            session=ort.InferenceSession(str(self.directory/"kokoro-v1.0.int8.onnx"),options,
+            session=ort.InferenceSession(str(self.directory/self.model_file),options,
                                          providers=["CPUExecutionProvider"])
             self.sessions[profile]=Kokoro.from_session(session,str(self.directory/"voices-v1.0.bin"))
         return self.sessions[profile]
