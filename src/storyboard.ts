@@ -5,15 +5,16 @@ const frame = z.number().int().nonnegative();
 const text = z.string().trim().min(1);
 const cue = z.strictObject({from: frame, to: frame, text});
 export const presets = ['establishing', 'threat', 'critical', 'variation', 'evaluation', 'suspense', 'reveal', 'final'] as const;
+const camera = z.strictObject({focus: square.nullable(), zoom: z.number().min(1).max(1.35)});
 const scene = z.strictObject({
   preset: z.enum(presets), title: text, frames: frame.min(1), ply: frame,
   line: text.optional(), moveFrames: frame,
-  camera: z.strictObject({focus: square.nullable(), zoom: z.number().min(1).max(1.35)}),
+  camera, settleCamera: camera.optional(), moveAt: frame.optional(),
   highlights: z.array(square), arrows: z.array(z.tuple([square, square]).refine(([a,b]) => a !== b)),
   transition: z.enum(['cut', 'glide']), captions: z.array(cue), overlay: text.optional(),
   evaluation: z.strictObject({label: text, whitePercent: z.number().min(0).max(100), source: text}).optional(),
 }).superRefine((value, context) => {
-  if (value.moveFrames >= value.frames) context.addIssue({code:'custom',path:['moveFrames'],message:'Move must finish before scene ends'});
+  if ((value.moveAt ?? 0) + value.moveFrames >= value.frames || (value.moveAt && !value.moveFrames)) context.addIssue({code:'custom',path:['moveFrames'],message:'Move must finish before scene ends'});
   let end = 0;
   value.captions.forEach((item, index) => {
     if (item.from < end || item.from >= item.to || item.to > value.frames) {
@@ -28,6 +29,7 @@ export const storyboard = z.strictObject({
   series:z.enum(['Chess Crimes','The Chess Lab','Chess History Files','Find the Move']), summary:text,
   sources:z.array(z.strictObject({label:text,url:z.url({protocol:/^https?$/})})).min(1),
   pgn:z.string(), fen:text.optional(), theme:z.enum(['forest','slate']), orientation:z.enum(['white','black']),
+  presentation:z.enum(['director']).optional(), captionStyle:z.enum(['boxed','plain']).optional(),
   width:z.literal(1080), height:z.literal(1920), fps:z.literal(30),
   audio:z.array(z.strictObject({asset:z.string().regex(/^[\w-]+\.(mp3|wav|m4a)$/), start:frame,
     end:frame.optional(), volume:z.number().min(0).max(1), kind:z.enum(['narration','music','effect']), label:text})),

@@ -17,7 +17,7 @@ test('overlapping captions, negative timing and unsupported presets fail',() => 
   const invalid = structuredClone(input);
   invalid.scenes[0].captions[1].from = 40;
   assert.equal(storyboard.safeParse(invalid).success,false);
-  for (const overrides of [{frames:-1},{preset:'invented'},{camera:{focus:'i8',zoom:3}},{moveFrames:180}]) {
+  for (const overrides of [{frames:-1},{preset:'invented'},{camera:{focus:'i8',zoom:3}},{moveFrames:180},{moveAt:5},{moveAt:175,moveFrames:6}]) {
     assert.equal(storyboard.safeParse({...input,scenes:[{...input.scenes[0],...overrides}]}).success,false);
   }
 });

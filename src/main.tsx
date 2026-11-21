@@ -6,7 +6,7 @@ import {projects} from './projects';
 import {timeline} from './storyboard';
 import './studio.css';
 
-const workflow = 'https://github.com/ReidMaxim/CHECKMATE-STUDIO/actions/workflows/render.yml';
+const workflows = 'https://github.com/ReidMaxim/CHECKMATE-STUDIO/actions/workflows/';
 
 class ErrorBoundary extends React.Component<{children:ReactNode},{error?:Error}> {
   state:{error?:Error} = {};
@@ -24,6 +24,9 @@ function Studio() {
   const player = useRef<PlayerRef>(null);
   const project = projects.find(item => item.id===id);
   const shots = project ? timeline(project) : [];
+  const director = project?.presentation === 'director';
+  const workflow = workflows + (director ? 'directors-cut.yml' : 'render.yml');
+  const artifact = director ? 'directors-cut' : 'sample-video';
   const footerTime = (frames:number) => new Intl.NumberFormat('en-US',{minimumIntegerDigits:2}).format(Math.floor(frames/(project?.fps ?? 30)));
   function jumpTo(frame:number) {
     const instance=player.current;
@@ -68,11 +71,11 @@ function Studio() {
           <section className="panel details">
             <h2>Preview settings</h2>
             <label className="check"><input type="checkbox" checked={flipped} onChange={event => setFlipped(event.target.checked)}/> Flip board</label>
-            <label className="check"><input type="checkbox" checked={narration} onChange={event => setNarration(event.target.checked)}/> Test narration</label>
+            <label className="check"><input type="checkbox" checked={narration} onChange={event => setNarration(event.target.checked)}/> Narration</label>
             <p className="muted">{project.width} × {project.height} · {project.fps} fps · H.264 / AAC</p>
           </section>
           <section className="panel details"><h2>Cloud renders</h2>
-            <p>Open a successful workflow run and download <strong>sample-video</strong> from its Artifacts section.</p>
+            <p>Open a successful workflow run and download <strong>{artifact}</strong> from its Artifacts section.</p>
             <a className="action" href={workflow}>View render runs ↗</a>
           </section>
         </div>

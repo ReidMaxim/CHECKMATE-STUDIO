@@ -3,3 +3,7 @@ dist/
 out/
 __pycache__/
 src/generated.json
+
+.cache/
+projects/legal-directors-cut.json
+public/director-*.wav
