@@ -40,7 +40,26 @@ function Sprite({symbol,x,y,alpha}:{symbol:string;x:number;y:number;alpha:number
   </g>;
 }
 
-function Arcade(){
+function ImpactBanner({effect,burst,mate}:{effect?:string;burst:number;mate:boolean}){
+  if(effect==='capture' && burst>=0 && burst<42){
+    const recoil=burst<10?Math.round(11*Math.sin(burst*1.35)*(1-burst/10)):0;
+    return <div className="arcade-impact-inset">
+      <svg viewBox="0 0 120 106" aria-hidden="true">
+        <g transform={`translate(${recoil},0)`}><Sprite symbol="Q" x={11} y={-5} alpha={1}/></g>
+        <path d="M98 10L53 91" stroke="#ff659d" strokeWidth="8" opacity={clamp((24-burst)/24)}/>
+      </svg>
+      <span>CAPTURE · d1</span>
+    </div>;
+  }
+  if(mate){
+    return <div className="arcade-impact-medal" style={{transform:`translateY(${Math.max(0,9-burst)*2}px)`}}>
+      <span>WHITE</span><strong>WINS</strong>
+    </div>;
+  }
+  return null;
+}
+
+function Arcade({impact=false}:{impact?:boolean}){
   const frame=useCurrentFrame();
   const cue=reverseCues.find(item=>frames(item.time)<=frame) ?? cues[0];
   const move=evidence.moveAssessments[cue.ply-1]?.actual;
@@ -60,14 +79,21 @@ function Arcade(){
   const settled=pieces.filter(piece=>piece!==moving);
   const whiteQueen=pieces.some(p=>p.symbol==='Q') && !(moving?.symbol==='Q');
   const mate=ply===13;
+  const checked = effect==='check' && landed ? pieces.find(piece=>piece.symbol==='k') : undefined;
+  const mated = mate ? pieces.find(piece=>piece.symbol==='k') : undefined;
+  const king=checked??mated;
+  const whiteCount=pieces.filter(piece=>piece.symbol===piece.symbol.toUpperCase()).length;
+  const blackCount=pieces.length-whiteCount;
   const title=!landed && effect && effect!=='move' ? 'TACTIC IN PLAY' : cue.title;
-  return <AbsoluteFill className="arcade">
+  const impactTitle=mate?'CHECKMATE':effect==='capture'&&landed?'QUEEN DOWN':effect==='check'&&landed?'KING IN CHECK':title;
+  return <AbsoluteFill className={impact?'arcade arcade-impact':'arcade'}>
     <div className="arcade-screen"/>
     <div className="arcade-wordmark">ARCADE<span>//</span>CHESS</div>
-    <div className="arcade-title">{title}</div>
+    <div className="arcade-title">{impact?impactTitle:title}</div>
+    {impact&&<ImpactBanner effect={effect} burst={burst} mate={mate}/>}
     <div className="arcade-hud">
-      <div><span>WHITE</span><strong>{whiteQueen?'QUEEN ONLINE':'QUEEN DOWN'}</strong></div>
-      <div><span>BLACK</span><strong>{mate?'CHECKMATED':move?.san.endsWith('+')&&landed?'IN CHECK':'KING ACTIVE'}</strong></div>
+      <div><span>WHITE{impact&&` · ${whiteCount} PIECES`}</span><strong>{whiteQueen?'QUEEN ONLINE':'QUEEN DOWN'}</strong></div>
+      <div><span>BLACK{impact&&` · ${blackCount} PIECES`}</span><strong>{mate?'CHECKMATED':move?.san.endsWith('+')&&landed?(impact?'CHECK · 1 REPLY':'IN CHECK'):'KING ACTIVE'}</strong></div>
     </div>
     <div className="arcade-board">
       <svg viewBox="0 0 800 800" role="img" aria-label={pos.fen}>
@@ -77,13 +103,21 @@ function Arcade(){
           <rect x={src[0]+4} y={src[1]+4} width="92" height="92" opacity=".52"/>
           <rect x={dest[0]+4} y={dest[1]+4} width="92" height="92"/>
         </g>}
+        {impact&&mate&&pieces.filter(piece=>piece.symbol==='N').map(piece=>
+          <rect key={piece.x} x={piece.x+8} y={piece.y+8} width="84" height="84" fill="#2f796e" fillOpacity=".58"
+            stroke={colors.mint} strokeWidth="4"/>)}
+        {impact&&king&&<rect x={king.x+6} y={king.y+6} width="88" height="88" fill="#9d295a"
+          fillOpacity={mate ? .51 : .40} stroke={colors.pink} strokeWidth="5"/>}
+        {impact&&checked&&dest&&burst<25&&
+          <path d={`M${dest[0]+50} ${dest[1]+50}L${checked.x+50} ${checked.y+50}`}
+            stroke={colors.mint} strokeWidth="6" strokeDasharray="11 7" opacity={clamp((25-burst)/18)}/>}
         {settled.map(piece=><Sprite key={`${piece.x}:${piece.y}`} {...piece}
           alpha={moving&&dest&&piece.x===dest[0]&&piece.y===dest[1]?1-.7*moveProgress:1}/>)}
         {moving&&dest&&<Sprite symbol={moving.symbol} x={moving.x+(dest[0]-moving.x)*moveProgress}
           y={moving.y+(dest[1]-moving.y)*moveProgress-22*Math.sin(moveProgress*Math.PI)} alpha={1}/>}
-        {dest&&effect!=='move'&&burst>=0&&burst<20&&Array.from({length:12},(_,i)=>{
+        {dest&&effect!=='move'&&(!impact||effect!=='check')&&burst>=0&&burst<20&&Array.from({length:12},(_,i)=>{
           const angle=i*Math.PI/6;
-          const distance=23+burst*3.7;
+          const distance=23+burst*(impact?5.0:3.7);
           return <rect key={i} x={Math.round(dest[0]+50+Math.cos(angle)*distance)} y={Math.round(dest[1]+50+Math.sin(angle)*distance)}
             width={i%2?8:12} height={i%2?8:12} fill={effect==='capture'?colors.pink:colors.mint} opacity={1-burst/20}/>;
         })}
@@ -101,4 +135,8 @@ function lineLabel(ply:number){
   return `TURN ${item.moveNumber} · ${item.player.toUpperCase()}`;
 }
 
-registerRoot(()=> <Composition id="arcade-chess" component={Arcade} width={1080} height={1920} fps={fps} durationInFrames={fps*seconds}/>);
+const format={width:1080,height:1920,fps,durationInFrames:fps*seconds};
+registerRoot(()=> <>
+  <Composition id="arcade-chess" component={Arcade} defaultProps={{impact:false}} {...format}/>
+  <Composition id="arcade-chess-impact" component={Arcade} defaultProps={{impact:true}} {...format}/>
+</>);

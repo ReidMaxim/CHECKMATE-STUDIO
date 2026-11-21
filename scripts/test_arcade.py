@@ -18,6 +18,9 @@ class ArcadeEvidenceTests(unittest.TestCase):
         self.assertEqual([row["fen"] for row in self.evidence["positions"][8:14]],
                          [board.fen() for board in states[8:14]])
         self.assertTrue(states[13].is_checkmate())
+        self.assertEqual([states[11].san(move) for move in states[11].legal_moves], ["Ke7"])
+        self.assertEqual(states[11].king(False), 60)
+        self.assertEqual(states[13].king(False), 52)
 
     def test_rejects_burst_outside_its_cue(self):
         broken = copy.deepcopy(self.cues)

@@ -14,3 +14,14 @@
 .arcade-move{top:1432px;display:flex;justify-content:space-between;align-items:center;font:bold 30px monospace;color:#8cf5cd}
 .arcade-caption{top:1490px;padding:14px 21px;border-left:7px solid #ffc56a;background:#241936;box-sizing:border-box;font-size:50px;line-height:1.08}
 .arcade footer{top:1690px;color:#b6aad0;font:bold 21px monospace;letter-spacing:.09em}
+
+.arcade-impact .arcade-title{width:615px;font-size:70px;line-height:1.01}
+.arcade-impact .arcade-hud{top:474px;gap:12px}
+.arcade-impact .arcade-hud div{border-width:3px;border-left-width:8px;border-left-color:#ffc56a}
+.arcade-impact .arcade-hud div+div{border-left-color:#8cf5cd}
+.arcade-impact-inset,.arcade-impact-medal{position:absolute;top:260px;left:710px;width:212px;height:166px;box-sizing:border-box}
+.arcade-impact-inset{background:#392046;border:4px solid #ff659d;color:#fff2ba;display:grid;justify-items:center}
+.arcade-impact-inset svg{display:block;width:157px;height:129px;shape-rendering:crispEdges}
+.arcade-impact-inset span,.arcade-impact-medal span{font:bold 19px monospace;letter-spacing:.06em}
+.arcade-impact-medal{display:grid;place-content:center;text-align:center;gap:4px;background:#203b38;border:5px solid #8cf5cd;color:#8cf5cd}
+.arcade-impact-medal strong{font:bold 52px/1 monospace;color:#fff2ba}

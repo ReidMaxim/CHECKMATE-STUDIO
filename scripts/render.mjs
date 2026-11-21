@@ -5,7 +5,7 @@ import {renderMedia,selectComposition} from '@remotion/renderer';
 
 const id = process.argv[2] ?? 'legal-mate';
 if (!/^[a-z][a-z0-9-]*$/.test(id)) throw new Error('Invalid composition ID');
-const serveUrl = await bundle({entryPoint:id==='arcade-chess' ? 'src/arcade-remotion.tsx' : 'src/remotion.tsx'});
+const serveUrl = await bundle({entryPoint:['arcade-chess','arcade-chess-impact'].includes(id) ? 'src/arcade-remotion.tsx' : 'src/remotion.tsx'});
 const browserExecutable = process.env.CHROMIUM_BIN ?? ['/usr/bin/chromium','/usr/bin/google-chrome'].find(path => existsSync(path));
 const chromiumOptions = {gl:'swangle'};
 const composition = await selectComposition({serveUrl,id,browserExecutable,chromiumOptions});

@@ -7,7 +7,13 @@ permissions:
   contents: read
 jobs:
   arcade:
+    strategy:
+      fail-fast: false
+      matrix:
+        cut: [arcade-chess, arcade-chess-impact]
     runs-on: ubuntu-24.04
+    env:
+      CUT: ${{ matrix.cut }}
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v5
@@ -32,17 +38,22 @@ jobs:
         run: python scripts/arcade_audio.py --prepared
       - run: npm test
       - run: npm run build
-      - run: npm run render -- arcade-chess
-      - run: python scripts/verify-video.py out/arcade-chess.mp4 out/arcade-format.json
+      - name: Render and measure wall time
+        run: |
+          start=$(date +%s)
+          npm run render -- "$CUT"
+          printf '%s %s seconds\n' "$CUT" "$(( $(date +%s) - start ))" | tee out/render-time.txt
+      - run: python scripts/verify-video.py "out/$CUT.mp4" out/arcade-format.json
       - name: Check audio headroom
         run: |
-          ffmpeg -hide_banner -i out/arcade-chess.mp4 -vn -af volumedetect -f null - 2>out/arcade-audio-check.txt
+          ffmpeg -hide_banner -i "out/$CUT.mp4" -vn -af volumedetect -f null - 2>out/arcade-audio-check.txt
           python -c 'import re; from pathlib import Path; peak=float(re.search(r"max_volume: (-?[\d.]+) dB",Path("out/arcade-audio-check.txt").read_text())[1]); print(f"Audio peak {peak} dBFS"); assert -12 <= peak <= -1'
       - uses: actions/upload-artifact@v5
         with:
-          name: arcade-chess-prototype
+          name: ${{ matrix.cut }}
           path: |
-            out/arcade-chess.mp4
+            out/${{ matrix.cut }}.mp4
+            out/render-time.txt
             out/arcade-audit.json
           retention-days: 30
           if-no-files-found: error

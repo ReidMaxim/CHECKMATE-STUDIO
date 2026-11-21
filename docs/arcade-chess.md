@@ -7,3 +7,7 @@ The arcade composition has six original hand-drawn pixel silhouettes, a position
 The prototype uses the existing Remotion renderer through a dedicated composition entry. The branch-only cloud workflow validates the Mission 002 evidence, the documentary position match and the checksummed announcer mix, renders the 1080 × 1920 H.264/AAC cut and verifies its decode and audio headroom. Open Artifacts for the MP4 and the cue/evidence audit.
 
 For an A/B viewing, compare clarity of the exposed queen and forcing reply, how the capture and mate land, and whether the voice adds character at phone volume. The two cuts have different runtimes, narration, sound design and visual pacing. Treat the comparison as a preference test between complete cuts.
+
+## Impact comparison
+
+The workflow renders the baseline and Impact Polish as separate composition IDs at the same duration and resolution. Both use the identical checksummed Kokoro mix and verified move timeline. Impact Polish adds an enlarged queen inset with recoil, a king-square check highlight and short bishop-to-king line, and a victory badge over the unchanged mating board. The HUD derives piece counts from the displayed FEN. The one-reply callout is covered by a legal-move assertion. Each artifact contains its wall-clock render time.
