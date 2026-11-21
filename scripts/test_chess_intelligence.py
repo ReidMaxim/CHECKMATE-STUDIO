@@ -105,7 +105,7 @@ class IntegrationTests(unittest.TestCase):
             for row in result["positions"]:
                 for line in row["lines"]:
                     line.pop("seconds")
-            result["moveAssessments"][0]["playedLine"].pop("seconds")
+            result["moveAssessments"][0]["playedLine"].pop("seconds", None)
         self.assertEqual(runs[0]["positions"],runs[-1]["positions"])
         self.assertEqual(runs[0]["moveAssessments"],runs[-1]["moveAssessments"])
 

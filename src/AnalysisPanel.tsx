@@ -127,6 +127,11 @@ function GameAnalysis({file,data}:{file:string;data:Evidence}) {
             <details><summary>Why it ranked here</summary><dl>{Object.entries(moment.dimensions).map(([key,value])=>
               <div key={key}><dt>{dimensions[key]}</dt><dd>{Math.round(value*100)}%</dd></div>)}</dl></details>
           </article>)}
+        {data.criticalMoments.some(moment=>!data.storyCandidates.includes(moment.id)) &&
+          <details><summary>Other detected moments</summary>
+            {data.criticalMoments.filter(moment=>!data.storyCandidates.includes(moment.id)).map(moment=>
+              <p key={moment.id}><button onClick={()=>select(moment)}>{moment.move} · {categories[moment.category]}</button></p>)}
+          </details>}
         <details><summary>Analysis limitations</summary><ul>{data.warnings.map(warning=><li key={warning}>{warning}</li>)}</ul></details>
       </section>
     </div>
