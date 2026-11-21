@@ -15,12 +15,16 @@ def signal(samples, rate):
         raise ValueError("Nonfinite ONNX output before writing or encoding")
     peak = max(map(abs,values))
     rms = sqrt(sum(value*value for value in values)/len(values))
-    clipped = sum(abs(value) >= .999 for value in values)/len(values)
+    clipped = sum(abs(abs(value)-1) < 1e-7 for value in values)/len(values)
     if peak < .02 or rms < .004:
         raise ValueError(f"Silent ONNX output before writing or encoding (peak={peak:.5f}, rms={rms:.5f})")
     if clipped > .001:
         raise ValueError(f"Excessive clipping in raw ONNX output ({clipped:.4%})")
-    pcm = trim(array("h", (round(32767 * max(-1,min(1,value))) for value in values)))
+    if peak > 2:
+        raise ValueError(f"Unstable synthesis amplitude: peak={peak:.3f}")
+    # Floating-point excursions can be scaled before PCM quantization.
+    gain=min(1., .94/peak)
+    pcm = trim(array("h", (round(32767 * gain * value) for value in values)))
     quiet = 0
     for start in range(0,len(pcm)-2400,2400):
         level = max(map(abs,pcm[start:start+2400]))
@@ -28,7 +32,7 @@ def signal(samples, rate):
         if quiet>=12:
             raise ValueError("Unexpected internal silence in narrated phrase")
     return pcm, {"sampleRate":rate,"samples":len(pcm),"rawSeconds":len(values)/rate,
-                 "peak":round(peak,5),"rms":round(rms,5),"clippedFraction":clipped}
+                 "peak":round(peak,5),"rms":round(rms,5),"clippedFraction":clipped,"pcmGain":round(gain,5)}
 
 
 class VoiceStudio:
@@ -56,15 +60,17 @@ class VoiceStudio:
     def __call__(self, text):
         rate=self.rates.get(text,1.0)
         attempts=[]
-        for profile in dict.fromkeys((self.preferred,"portable","standard")):
+        sequence=[(self.preferred,rate),("portable",rate),("standard",rate),
+                  ("portable",1.0),("portable",.96)]
+        for profile,effective_rate in dict.fromkeys(sequence):
             try:
-                samples,hz=self.engine(profile).create(text,voice=self.voice,speed=rate,lang="en-us",trim=False)
+                samples,hz=self.engine(profile).create(text,voice=self.voice,speed=effective_rate,lang="en-us",trim=False)
                 pcm,stats=signal(samples,hz)
             except (ValueError,RuntimeError) as exc:
-                attempts.append({"profile":profile,"error":str(exc)})
+                attempts.append({"profile":profile,"rate":effective_rate,"error":str(exc)})
                 continue
             self.preferred=profile
-            self.audit.append({"text":text,"voice":self.voice,"rate":rate,"profile":profile,
+            self.audit.append({"text":text,"voice":self.voice,"rate":effective_rate,"requestedRate":rate,"profile":profile,
                                "attempts":attempts,**stats})
             return pcm
         raise ValueError(f"Kokoro failed for {text!r}: {attempts}")
