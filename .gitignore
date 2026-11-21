@@ -11,3 +11,6 @@ public/director-*.wav
 projects/storyteller-documentary.json
 public/storyteller-*.wav
 src/storyteller-review.generated.json
+
+projects/unseen-documentary.json
+public/unseen-*.wav

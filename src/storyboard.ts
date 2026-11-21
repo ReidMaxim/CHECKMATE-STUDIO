@@ -27,7 +27,7 @@ const scene = z.strictObject({
 export const storyboard = z.strictObject({
   version:z.literal(1), id:z.string().regex(/^[a-z][a-z0-9-]*$/), title:text,
   series:z.enum(['Chess Crimes','The Chess Lab','Chess History Files','Find the Move']), summary:text,
-  sources:z.array(z.strictObject({label:text,url:z.url({protocol:/^https?$/})})).min(1),
+  sources:z.array(z.strictObject({label:text,url:z.url({protocol:/^https?$/})})),
   pgn:z.string(), fen:text.optional(), theme:z.enum(['forest','slate']), orientation:z.enum(['white','black']),
   presentation:z.enum(['director']).optional(), captionStyle:z.enum(['boxed','plain']).optional(),
   width:z.literal(1080), height:z.literal(1920), fps:z.literal(30),
@@ -36,6 +36,7 @@ export const storyboard = z.strictObject({
   variations:z.record(z.string().regex(/^(?!main$)[\w-]+$/),z.strictObject({fromPly:frame,moves:z.array(text).min(1)})).optional(),
   scenes:z.array(scene).min(1),
 }).superRefine((value, context) => {
+  if (!value.sources.length && value.id !== "unseen-documentary") context.addIssue({code:"custom",path:["sources"],message:"Supply a game-score source"});
   if (!value.pgn.trim() && !value.fen) context.addIssue({code:'custom',message:'Supply a PGN or FEN'});
   const duration = value.scenes.reduce((sum,item) => sum + item.frames,0);
   value.audio.forEach((track,index) => {
