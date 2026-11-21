@@ -1,0 +1,75 @@
+name: Analyze chess examples
+on:
+  push:
+    branches: [mission-002-chess-intelligence, main]
+  workflow_dispatch:
+    inputs:
+      example:
+        description: PGN fixture to analyze
+        default: all
+        type: choice
+        options: [all, legal-mate, deep-blue, pawn-ending, quiet-ending]
+      depth:
+        description: Stockfish depth (1–20)
+        default: '12'
+        type: string
+permissions:
+  contents: read
+jobs:
+  analyze:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24.22.3'
+          cache: npm
+      - uses: actions/cache@v4
+        with:
+          path: .cache/stockfish
+          key: stockfish-17.1-linux-x64-${{ hashFiles('scripts/install-stockfish.sh') }}
+      - run: python -m pip install -r requirements.txt
+      - run: bash scripts/install-stockfish.sh
+      - run: npm ci
+      - run: npm test
+        env:
+          STOCKFISH_INTEGRATION: '1'
+      - name: Analyze and verify evidence
+        env:
+          EXAMPLE: ${{ inputs.example || 'all' }}
+          DEPTH: ${{ inputs.depth || '12' }}
+        run: |
+          case "$EXAMPLE" in
+            all) names=(legal-mate deep-blue pawn-ending quiet-ending) ;;
+            legal-mate|deep-blue|pawn-ending|quiet-ending) names=("$EXAMPLE") ;;
+            *) exit 2 ;;
+          esac
+          for example in "${names[@]}"; do
+            evidence="out/analysis/$example.json"
+            python scripts/chess_intelligence.py analyze "examples/chess/$example.pgn" --depth "$DEPTH" --cache .cache/analysis --output "$evidence"
+            python scripts/chess_intelligence.py validate "$evidence"
+            python scripts/chess_intelligence.py analyze "examples/chess/$example.pgn" --depth "$DEPTH" --cache .cache/analysis --output "out/analysis/$example-cache.json"
+          done
+      - name: Validate dashboard snapshots
+        run: |
+          for example in examples/analysis/*.json; do
+            python scripts/chess_intelligence.py validate "$example"
+          done
+          npm run build
+      - uses: actions/upload-artifact@v5
+        with:
+          name: chess-evidence
+          path: out/analysis
+          retention-days: 30
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v5
+        with:
+          name: chess-intelligence-dashboard
+          path: dist
+          retention-days: 14
+          if-no-files-found: error

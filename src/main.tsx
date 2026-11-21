@@ -2,6 +2,7 @@ import React, {useRef, useState, type ReactNode} from 'react';
 import {createRoot} from 'react-dom/client';
 import {Player, type PlayerRef} from '@remotion/player';
 import {Film} from './Film';
+import {AnalysisPanel} from './AnalysisPanel';
 import {projects} from './projects';
 import {timeline} from './storyboard';
 import './studio.css';
@@ -36,7 +37,7 @@ function Studio() {
   }
   return <>
     <header className="mast"><div className="brand"><span className="brand-mark" aria-hidden="true">♞</span>
-      <strong>CHECKMATE<b>//</b>STUDIO</strong></div><a href={workflow}>Render workflow ↗</a></header>
+      <strong>CHECKMATE<b>//</b>STUDIO</strong></div><a href="#analysis">Chess analysis ↓</a></header>
     <main className="studio">
       <div className="heading"><h1>Screening room</h1><p>Review the film, inspect each shot, and download completed cloud renders.</p></div>
       {project ? <div className="workspace">
@@ -80,6 +81,7 @@ function Studio() {
           </section>
         </div>
       </div> : <p className="panel details">No projects are available. Add a validated storyboard to the next build.</p>}
+      <AnalysisPanel/>
     </main>
   </>;
 }
