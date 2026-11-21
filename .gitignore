@@ -7,3 +7,5 @@ src/generated.json
 .cache/
 projects/legal-directors-cut.json
 public/director-*.wav
+
+public/arcade-mix.wav

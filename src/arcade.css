@@ -1,0 +1,16 @@
+.arcade{background:#171125;color:#fff2ba;font-family:'DM Sans',sans-serif;overflow:hidden}
+.arcade-screen{position:absolute;inset:0;background:repeating-linear-gradient(0deg,#e6c5ff0a 0 2px,transparent 2px 8px),radial-gradient(ellipse at 45% 36%,#422465 0%,#211634 52%,#171125 86%)}
+.arcade-wordmark,.arcade-title,.arcade-hud,.arcade-board,.arcade-move,.arcade-caption,.arcade footer{position:absolute;left:78px;width:850px}
+.arcade-wordmark{top:222px;font:bold 32px monospace;letter-spacing:.19em;color:#8cf5cd}
+.arcade-wordmark span{color:#ffc56a}
+.arcade-title{top:282px;font:bold 75px/1.05 monospace;letter-spacing:-.07em;text-shadow:5px 5px #412467}
+.arcade-hud{top:474px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.arcade-hud div{display:grid;gap:6px;padding:14px 17px;background:#26183c;border:4px solid #6e56a3}
+.arcade-hud span,.arcade-move span{font:bold 22px monospace;letter-spacing:.11em;color:#b6aad0}
+.arcade-hud strong{font:bold 28px monospace;color:#ffc56a}
+.arcade-hud div+div strong{color:#8cf5cd}
+.arcade-board{top:582px;border:5px solid #8968bd;box-sizing:border-box;background:#26183c}
+.arcade-board svg{display:block;width:100%;shape-rendering:crispEdges}
+.arcade-move{top:1432px;display:flex;justify-content:space-between;align-items:center;font:bold 30px monospace;color:#8cf5cd}
+.arcade-caption{top:1490px;padding:14px 21px;border-left:7px solid #ffc56a;background:#241936;box-sizing:border-box;font-size:50px;line-height:1.08}
+.arcade footer{top:1690px;color:#b6aad0;font:bold 21px monospace;letter-spacing:.09em}
