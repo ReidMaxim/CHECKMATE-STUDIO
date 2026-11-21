@@ -65,7 +65,11 @@ jobs:
           if [ -n "$CANDIDATE" ]; then selection=(--candidate "$CANDIDATE"); fi
           python scripts/storyteller.py --mode "$MODE" --depth "$DEPTH" "${selection[@]}"
       - run: npm run build
-      - run: npm run render -- storyteller-documentary
+      - name: Render documentary with pinned Chromium
+        run: |
+          npm install --prefix "$RUNNER_TEMP/story-browser" --no-audit --no-fund @sparticuz/chromium@141.0.0
+          export CHROMIUM_BIN=$(node --input-type=module -e 'const c=(await import(process.env.RUNNER_TEMP+"/story-browser/node_modules/@sparticuz/chromium/build/esm/index.js")).default; process.stdout.write(await c.executablePath())')
+          npm run render -- storyteller-documentary
       - run: python scripts/verify-video.py out/storyteller-documentary.mp4 projects/storyteller-documentary.json
       - name: Mark ready for human review
         run: |
