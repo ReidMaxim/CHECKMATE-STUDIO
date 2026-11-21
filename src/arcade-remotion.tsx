@@ -92,7 +92,7 @@ function Arcade(){
     <div className="arcade-move"><span>{lineLabel(ply)} · RECORDED LINE</span><strong>{evidence.moveAssessments[ply-1].actual.san}</strong></div>
     <div className="arcade-caption">{cue.caption}</div>
     <footer>LÉGAL MATE · PUBLISHED CONTINUATION</footer>
-    <Audio src={staticFile('arcade-mix.wav')}/>
+    <Audio src={staticFile('arcade-mix.mp3')}/>
   </AbsoluteFill>;
 }
 

@@ -1,5 +1,6 @@
 """Synthesize the experimental ARCADE//CHESS cut and verify its evidence."""
 import argparse
+import hashlib
 from array import array
 import json
 from math import exp, pi, sin
@@ -14,6 +15,7 @@ SECONDS = 26
 FPS = 30
 VOICE = "am_puck"
 SPEED = 1.06
+PREPARED_SHA = "c6a822c8efd705df91313fba9b3d086a8df0b15e8aaa0963b9c869d3abf69b24"
 EXPECTED = ["Nxe5", "Bxd1", "Bxf7+", "Ke7", "Nd5#"]
 EFFECTS = {"move": [270], "capture": [280, 125], "check": [440, 660], "mate": [523, 659, 784, 1047]}
 BED = [130.81, 130.81, 155.56, 130.81, 98, 116.54, 98, 87.31]
@@ -35,10 +37,7 @@ def validate_arcade(evidence, cues):
             raise ValueError("Move animation or effect exceeds its cue window")
 
 
-def produce(provider):
-    cues = json.loads((ROOT / "src/arcade-cues.json").read_text())
-    evidence = json.loads((ROOT / "examples/analysis/legal-mate.json").read_text())
-    validate_arcade(evidence, cues)
+def produce(provider, cues):
     say = speaker(provider, ROOT / ".cache/kokoro", VOICE, SPEED)
     narration = array("h", [0]) * (RATE * SECONDS)
     effects = array("h", [0]) * (RATE * SECONDS)
@@ -74,6 +73,8 @@ def produce(provider):
         subprocess.run(["ffmpeg","-v","error","-y","-i",str(speech_file),"-i",str(effect_file),
                         "-filter_complex","amix=inputs=2:normalize=0,loudnorm=I=-16:TP=-2:LRA=8",
                         "-ar",str(RATE),"-ac","1",str(ROOT/"public/arcade-mix.wav")],check=True)
+
+def write_audit(cues, evidence, provider):
     output = ROOT / "out"
     output.mkdir(exist_ok=True)
     (output/"arcade-audit.json").write_text(json.dumps({
@@ -89,4 +90,16 @@ def produce(provider):
 if __name__ == "__main__":
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--provider",choices=["kokoro","flite"],default="kokoro")
-    produce(parser.parse_args().provider)
+    parser.add_argument("--prepared", action="store_true", help="Verify and use the reference MP3")
+    args = parser.parse_args()
+    cues = json.loads((ROOT / "src/arcade-cues.json").read_text())
+    evidence = json.loads((ROOT / "examples/analysis/legal-mate.json").read_text())
+    validate_arcade(evidence, cues)
+    if args.prepared:
+        mix = ROOT / "public/arcade-mix.mp3"
+        if hashlib.sha256(mix.read_bytes()).hexdigest() != PREPARED_SHA:
+            raise ValueError("Reference soundtrack does not match the approved build input")
+        write_audit(cues, evidence, "kokoro")
+    else:
+        produce(args.provider, cues)
+        write_audit(cues, evidence, args.provider)
