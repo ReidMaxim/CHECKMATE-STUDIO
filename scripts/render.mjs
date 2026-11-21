@@ -10,7 +10,7 @@ const browserExecutable = process.env.CHROMIUM_BIN ?? ['/usr/bin/chromium','/usr
 const chromiumOptions = {gl:'swangle'};
 const composition = await selectComposition({serveUrl,id,browserExecutable,chromiumOptions});
 await mkdir('out',{recursive:true});
-await renderMedia({composition,serveUrl,codec:'h264',audioCodec:'aac',pixelFormat:'yuv420p',crf:18,
+await renderMedia({composition,serveUrl,codec:'h264',audioCodec:'aac',colorSpace:'bt709',pixelFormat:'yuv420p',crf:18,
   audioBitrate:'192k',enforceAudioTrack:true,browserExecutable,chromiumOptions,
   concurrency:Number(process.env.RENDER_CONCURRENCY ?? 3),outputLocation:`out/${id}.mp4`,
   onProgress:({renderedFrames,encodedFrames}) => {
