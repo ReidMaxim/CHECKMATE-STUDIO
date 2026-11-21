@@ -13,6 +13,8 @@ from chess_intelligence import ROOT, Stockfish, game_from, mover_score, validate
 from compile import compile_project
 from directors_cut import produce
 from story_provider import request_plan
+from live_direction import choose_treatment, shape_scenes, treatments
+from voice_studio import VoiceStudio
 
 HOOKS = {
     "choice":["What would you do with an offered knight?", "One decision can change the whole attack."],
@@ -214,15 +216,27 @@ def main():
     parser.add_argument("--candidate")
     parser.add_argument("--depth",type=int,default=17)
     parser.add_argument("--mode",choices=["offline","live"],default="offline")
+    parser.add_argument("--edition",choices=["benchmark","director"],default="benchmark")
+    parser.add_argument("--treatment",choices=["choice","pressure","tempo"])
+    parser.add_argument("--voice",default="am_michael")
     parser.add_argument("--prepared-voice",action="store_true")
     args=parser.parse_args()
-    if args.prepared_voice and (args.mode!="offline" or args.candidate):
+    if args.prepared_voice and (args.mode!="offline" or args.candidate or args.edition!="benchmark"):
         parser.error("Prepared voice applies only to the default offline demonstration")
     record=validate(json.loads(args.evidence.read_text()))
     moment=choose(record,args.candidate)
     deep=verify_deep(record,moment,args.depth,ROOT/".cache/stockfish/stockfish")
     proposal,beats,provider=draft(record,deep,args.mode)
+    options=treatments(deep)
+    if args.edition=="director":
+        treatment=choose_treatment(options,args.treatment or (proposal["angle"] if args.mode=="live" else None))
+        proposal["angle"]=treatment
     scenes,ledger=direct(record,deep,proposal,beats)
+    studio=None
+    if args.edition=="director":
+        scenes,ledger,rates=shape_scenes(scenes,ledger,deep,record,treatment,spoken,
+                                       authored_demo=args.mode=="offline")
+        studio=VoiceStudio(ROOT/".cache/kokoro",args.voice,rates)
     project=json.loads((ROOT/"projects/legal-mate.json").read_text())
     source=record.get("source")
     sources=[{"label":"Supplied game score","url":source}] if source and source.startswith(("https://","http://")) else []
@@ -233,9 +247,11 @@ def main():
                    pgn=record["game"]["pgn"],sources=sources)
     if any(shot.get("line")=="engine-choice" for shot in scenes):
         project["variations"]={"engine-choice":{"fromPly":deep["ply"]-1,"moves":[deep["best"]["moves"][0]["san"]]}}
-    synthesis=prepared_voice(scenes) if args.prepared_voice else None
-    provider["audioSource"]="prepared-kokoro-takes" if synthesis else "fresh-kokoro-synthesis"
-    produce({"scenes":scenes},"kokoro",ROOT/".cache/kokoro","am_michael",.93,project=project,stem="storyteller",synthesis=synthesis)
+    if studio:
+        project["title"]=options[treatment]["title"]
+    synthesis=prepared_voice(scenes) if args.prepared_voice else studio
+    provider["audioSource"]="prepared-kokoro-takes" if args.prepared_voice else "fresh-kokoro-synthesis"
+    produce({"scenes":scenes},"kokoro",ROOT/".cache/kokoro",args.voice,.93,project=project,stem="storyteller",synthesis=synthesis)
     storyboard=compile_project(json.loads((ROOT/"projects/storyteller-documentary.json").read_text()))
     runtime=sum(shot["frames"] for shot in storyboard["scenes"])/storyboard["fps"]
     if not 35<=runtime<=60:
@@ -245,6 +261,11 @@ def main():
                  game={"headers":record["game"]["headers"],"source":source},
                  selection={"id":moment["id"],"score":moment["score"],"reason":"Human override" if args.candidate else "Highest-ranked eligible candidate"},
                  deepVerification=deep,claims=ledger,durationSeconds=runtime,scenes=storyboard["scenes"])
+    if studio:
+        package.update(edition="director",angle=options[treatment]["title"],treatments=options,
+                       treatment=treatment,audio={"model":"Kokoro 82M v1.0 INT8","voice":args.voice,
+                                                  "alignment":"phrase","phrases":studio.audit},
+                       render={"width":1080,"height":1920,"fps":30,"codec":"H.264/AAC"})
     payload=json.dumps(package,indent=2,ensure_ascii=False)+"\n"
     (ROOT/"out/storyteller-review.json").write_text(payload)
     (ROOT/"src/storyteller-review.generated.json").write_text(payload)

@@ -1,12 +1,12 @@
 name: Produce Storyteller documentary
 on:
   push:
-    branches: [mission-003-storyteller]
+    branches: [mission-003-storyteller, mission-003-1-live-director]
   workflow_dispatch:
     inputs:
       mode:
         type: choice
-        options: [offline, live]
+        options: [offline, live, fresh, regression]
         default: offline
       candidate:
         description: Optional candidate ID, such as ply-16
@@ -57,14 +57,20 @@ jobs:
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           STORY_MODEL: ${{ vars.STORY_MODEL }}
-          MODE: ${{ inputs.mode || 'offline' }}
+          MODE: ${{ inputs.mode || (github.ref_name == 'mission-003-1-live-director' && 'fresh') || 'regression' }}
           CANDIDATE: ${{ inputs.candidate }}
           DEPTH: ${{ inputs.depth || '17' }}
         run: |
           selection=()
           if [ -n "$CANDIDATE" ]; then selection=(--candidate "$CANDIDATE"); fi
-          if [ "$MODE" = offline ] && [ -z "$CANDIDATE" ]; then selection+=(--prepared-voice); fi
-          python scripts/storyteller.py --mode "$MODE" --depth "$DEPTH" "${selection[@]}"
+          case "$MODE" in
+            fresh|offline) planner=offline; selection+=(--edition director) ;;
+            live) planner=live; selection+=(--edition director) ;;
+            regression) planner=offline; selection+=(--prepared-voice) ;;
+            *) exit 2 ;;
+          esac
+          python scripts/storyteller.py --mode "$planner" --depth "$DEPTH" "${selection[@]}"
+          python -c 'import json,os; from pathlib import Path; p=Path("out/storyteller-review.json"); j=json.loads(p.read_text()); j["workflowMode"]=os.environ["MODE"]; p.write_text(json.dumps(j,ensure_ascii=False,indent=2))'
       - run: npm run build
       - name: Render documentary with pinned Chromium
         run: |
@@ -80,6 +86,7 @@ jobs:
           path = Path("out/storyteller-review.json")
           data = json.loads(path.read_text())
           data["status"] = "ready-for-human-review"
+          data["validation"] = {"evidence":True,"storyboard":True,"mp4Decode":True,"audioHeadroom":True}
           path.write_text(json.dumps(data, ensure_ascii=False, indent=2))
           PY
           mkdir -p out/storyteller-package
