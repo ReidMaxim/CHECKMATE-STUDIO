@@ -1,0 +1,13 @@
+{
+  "voice": "am_michael",
+  "rate": 0.93,
+  "scenes": [
+    {"preset":"establishing","title":"The price of a queen","ply":8,"camera":{"focus":null,"zoom":1},"effect":"open","lead":0.45,"tail":0.36,"phrases":[["What if taking the queen",0.10],["was the move that lost the game?",0.0]]},
+    {"preset":"threat","title":"Follow the bishop","ply":8,"camera":{"focus":"e2","zoom":1.10},"highlights":["f3","d1"],"arrows":[["g4","d1"]],"lead":0.2,"tail":0.3,"phrases":[["The bishop has White’s knight pinned to the queen.",0.24],["Move the knight, and that whole diagonal opens.",0.0]]},
+    {"preset":"critical","title":"White opens the diagonal","ply":9,"camera":{"focus":"e4","zoom":1.08},"highlights":["e5","d1"],"lead":0.28,"tail":0.30,"anchor":1,"effect":"place","phrases":[["White moves it anyway.",0.14],["The knight takes on e5.",0.0,"The knight takes on E five."]]},
+    {"preset":"suspense","title":"The queen is gone","ply":10,"camera":{"focus":"d2","zoom":1.12},"highlights":["d1"],"lead":0.48,"tail":0.55,"anchor":0,"effect":"capture","phrases":[["Black’s bishop takes the queen.",0.25],["Now look at the other bishop.",0.0]]},
+    {"preset":"reveal","title":"The counterattack","ply":11,"camera":{"focus":"f6","zoom":1.10},"highlights":["f7","e5"],"arrows":[["e5","f7"]],"lead":0.22,"tail":0.3,"anchor":0,"effect":"check","phrases":[["White’s bishop takes on f7. Check.",0.24,"White’s bishop takes on F seven. Check."],["The knight on e5 protects it.",0.0,"The knight on E five protects it."]]},
+    {"preset":"reveal","title":"One square left","ply":12,"camera":{"focus":"e7","zoom":1.08},"highlights":["e7"],"lead":0.22,"tail":0.42,"anchor":1,"effect":"place","phrases":[["The king has one legal reply.",0.14],["It steps to e7.",0.0,"It steps to E seven."]]},
+    {"preset":"final","title":"Two knights. One mate.","ply":13,"camera":{"focus":"e6","zoom":1.08},"settleCamera":{"focus":null,"zoom":1},"highlights":["d5","e7"],"arrows":[["d5","e7"]],"lead":0.42,"tail":1.4,"anchor":0,"effect":"reveal","phrases":[["The other knight jumps to d5.",0.25,"The other knight jumps to D five."],["Checkmate.",0.4],["Before you grab the queen,",0.12],["ask what checks you’re leaving behind.",0.0]]}
+  ]
+}

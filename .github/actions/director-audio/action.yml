@@ -1,0 +1,28 @@
+name: Prepare director audio
+description: Generate the Director's Cut storyboard and WAV stems
+runs:
+  using: composite
+  steps:
+    - name: Provision audio tools
+      shell: bash
+      run: |
+        if ! command -v ffprobe >/dev/null || ! command -v ffmpeg >/dev/null; then
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends ffmpeg
+        fi
+    - uses: actions/cache@v4
+      with:
+        path: .cache/kokoro
+        key: kokoro-v1.0-int8-6e742170-bca610b8
+    - name: Generate narration and edit
+      shell: bash
+      run: |
+        if python -m pip install -r requirements-voice.txt &&
+           bash scripts/fetch-kokoro.sh &&
+           python scripts/directors_cut.py; then
+          echo 'Voice: Kokoro 82M v1.0 INT8 / am_michael' >> "$GITHUB_STEP_SUMMARY"
+        else
+          echo '::warning::Kokoro unavailable. Generating a separately timed Flite fallback.'
+          python scripts/directors_cut.py --provider flite
+          echo 'Voice: Flite fallback (Kokoro unavailable)' >> "$GITHUB_STEP_SUMMARY"
+        fi

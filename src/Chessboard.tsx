@@ -6,9 +6,9 @@ const cell = 100;
 type Props = {
   position: Snapshot; previous?: Snapshot; progress: number;
   orientation: Project['orientation']; theme: Project['theme'];
-  highlights: string[]; arrows: [string,string][]; emphasis: number;
+  highlights: string[]; arrows: [string,string][]; emphasis: number; animatedHighlights?: boolean;
 };
-export function Chessboard({position,previous,progress,orientation,theme,highlights,arrows,emphasis}:Props) {
+export function Chessboard({position,previous,progress,orientation,theme,highlights,arrows,emphasis,animatedHighlights=false}:Props) {
   const moving = progress < 1 && previous && position.move;
   const palette = theme === 'forest' ? ['#b9b99a','#586955'] : ['#aeb8b9','#54646e'];
   const point = (square:string) => boardPoint(square,orientation).map(value => value*cell);
@@ -22,7 +22,7 @@ export function Chessboard({position,previous,progress,orientation,theme,highlig
       const marked = highlights.includes(square);
       return <g key={square}>
         <rect x={x} y={y} width={cell} height={cell} fill={palette[(x/cell+y/cell)%2]}/>
-        {marked && <rect x={x+3} y={y+3} width="94" height="94" fill="#edb956" fillOpacity=".25" stroke="#ffe1a0" strokeWidth="4"/>}
+        {marked && <rect x={x+3} y={y+3} width="94" height="94" fill="#edb956" fillOpacity={animatedHighlights ? .18+.12*emphasis : .25} stroke="#ffe1a0" strokeWidth="4"/>}
         {square === visible.check && <rect x={x+6} y={y+6} width="88" height="88" rx="12" fill="#a93426" fillOpacity=".75"/>}
         {y===700 && <text x={x+88} y={y+91} textAnchor="end" fill="#19261f" fontSize="15" fontWeight="800">{square[0]}</text>}
         {x===0 && <text x={x+8} y={y+18} fill="#19261f" fontSize="15" fontWeight="800">{square[1]}</text>}
