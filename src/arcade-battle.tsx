@@ -22,10 +22,10 @@ function Gameplay({frame}:{frame:number}){
   const pos=boards[ply-9];
   const focus=ply===9?[[6,4],[3,7]]:ply===12?[[2,5],[3,3]]:ply===13?[[3,3],[4,3],[4,1]]:ply===11?[[5,1],[4,0]]:[[dx,dy]];
   const side=evidence.positions[ply].fen.split(' ')[1]==='w'?'WHITE':'BLACK';
-  const title=ply===13?'CHECKMATE':ply===9?'BLACK TO MOVE':ply===12?'WHITE TO MOVE':ply===11?'CHECK · ONE REPLY':'QUEEN CAPTURED';
+  const title=ply===13?'CHECKMATE':ply===11?'BLACK · ONE REPLY':`${side} TO MOVE`;
   const caption=ply===13?'Both knights close the net.':ply===9?'Bishop on g4. Queen on d1.':ply===10?'The bishop takes the queen.':ply===11?'Bxf7+ · The king must move.':'Ke7 · The knight is ready.';
   return <>
-    <div className="battle-board-label"><span>{title}</span><strong>{ply<13&&`${side} · `}{evidence.moveAssessments[ply-1].actual.san}</strong></div>
+    <div className="battle-board-label"><span>{title}</span><strong>{ply<13&&'LAST · '}{evidence.moveAssessments[ply-1].actual.san}</strong></div>
     <svg viewBox="0 0 360 640" className="battle-stage" role="img" aria-label={evidence.positions[ply].fen}>
       <rect x="21" y="167" width="300" height="300" fill="#20192e" stroke="#bb8d79" strokeWidth="2"/>
       <g shapeRendering="crispEdges">
