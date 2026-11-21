@@ -3,7 +3,6 @@
 .film-kicker,.film-title,.film-board-label,.film-caption,.film-footer,.film-overlay,.film-eval{position:absolute;left:92px;width:830px}
 .film-kicker{top:217px;letter-spacing:.22em;font-weight:700;font-size:25px;color:#edc888}
 .film-kicker i{display:inline-block;background:#edc888;width:12px;height:12px;margin:0 18px 3px 0;transform:rotate(45deg)}
-.film-kicker span{opacity:.55;margin:0 10px}
 .film-title{top:274px;font-family:'Playfair Display',Georgia,serif;font-size:91px;letter-spacing:-.035em;line-height:1.03;text-wrap:balance}
 .film-board-label{top:505px;display:flex;justify-content:space-between;color:#f0d09b;font-size:24px;letter-spacing:.12em;font-weight:700}
 .film-board{position:absolute;top:556px;left:92px;width:830px;height:830px;overflow:hidden;border-radius:12px;box-shadow:0 0 0 2px #ddc18b66, 0 25px 65px #0008}

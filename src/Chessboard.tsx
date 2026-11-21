@@ -1,6 +1,6 @@
 import {boardPoint, type Project, type Snapshot} from './storyboard';
 
-const glyph: Record<string,string> = {k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};
+const glyph: Record<string,string> = {k:'♚',q:'♛',r:'♜',b:'♝',n:'♞'};
 const squares = [...'87654321'].flatMap(rank => [...'abcdefgh'].map(file => file+rank));
 const cell = 100;
 type Props = {
@@ -37,16 +37,22 @@ export function Chessboard({position,previous,progress,orientation,theme,highlig
         y += (ty-y)*progress;
       }
       const light = piece === piece.toUpperCase();
+      const fill = light ? '#fff0d6' : '#1c2521';
+      const stroke = light ? '#272821' : '#c9c9ab';
+      const opacity = moving && moving.capture===square ? 1-Math.max(0,(progress-.50)*2) : 1;
+      if (piece.toLowerCase()==='p') return <path key={square} transform={`translate(${x},${y})`}
+        d="M50 23a12 12 0 0 1 6 22c1 7 5 15 10 19h4v10H30V64h4c5-4 9-12 10-19a12 12 0 0 1 6-22Z"
+        fill={fill} stroke={stroke} strokeWidth="2" opacity={opacity}/>;
       return <text key={square} x={x+50} y={y+77} textAnchor="middle" fontFamily="Noto Sans Symbols 2" fontSize="78"
-        fill={light?'#fff0d6':'#1c2521'} stroke={light?'#272821':'#c9c9ab'} strokeWidth={light?2.1:1.15}
-        paintOrder="stroke" opacity={moving && moving.capture===square? 1-Math.max(0,(progress-.50)*2):1}>
+        fill={fill} stroke={stroke} strokeWidth={light?2.1:1.15}
+        paintOrder="stroke" opacity={opacity}>
         {glyph[piece.toLowerCase()]}
       </text>;
     })}
     {arrows.map(([from,to],index) => {
       const [x,y]=point(from).map(value=>value+50),[tx,ty]=point(to).map(value=>value+50);
       const length=Math.hypot(tx-x,ty-y);
-      const stop=1-29/length;
+      const stop=(1-29/length)*(.32+.68*emphasis);
       return <line key={index} x1={x} y1={y} x2={x+(tx-x)*stop} y2={y+(ty-y)*stop}
         stroke="#f9cf76" strokeWidth="9" strokeLinecap="round" markerEnd="url(#tactical-tip)" opacity={.88*emphasis}/>;
     })}

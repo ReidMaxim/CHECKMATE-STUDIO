@@ -30,7 +30,7 @@ export function Film({project,assetBase,narration=true,flipped=false}:FilmProps)
   const status = move < 1 ? line[scene.ply-1] : state;
   return <AbsoluteFill className="film">
     <div className="film-grid"/>
-    <div className="film-kicker"><i/>{project.series.toUpperCase()}<span> / </span>CASE 01</div>
+    <div className="film-kicker"><i/>{project.series.toUpperCase()}</div>
     <div className="film-title" key={index}>{scene.title}</div>
     <div className="film-board-label"><span>{scene.line ? 'VARIATION' : 'POSITION'}</span>
       <span>{status.move?.san ?? 'START'}{status.mate ? '  ·  CHECKMATE' : status.check ? '  ·  CHECK' : ''}</span></div>
