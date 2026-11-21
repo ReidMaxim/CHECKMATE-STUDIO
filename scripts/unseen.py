@@ -104,13 +104,15 @@ def fact_bank(record, deep):
         facts[key] = dict(text=text, ply=ply, refs=refs, kind=kind, uci=uci)
 
     for ply, node in enumerate(game.mainline(), 1):
-        if not max(1, pivot - 5) <= ply <= pivot + 6:
+        if not max(1, pivot - 9) <= ply <= pivot + 6:
             continue
         board, after = node.parent.board(), node.board()
         add(f"move-{ply}", describe(board, node.move), ply,
             [f"moveAssessments/{ply - 1}", f"positions/{ply}"], uci=node.move.uci())
         if after.is_check():
-            statement = "That leaves no legal reply. It is checkmate." if after.is_checkmate() else "The king is in check."
+            legal = after.legal_moves.count()
+            statement = {0: "That leaves no legal reply. It is checkmate.",
+                         1: "There is only one legal reply to the check."}.get(legal, "The king is in check.")
             add(f"check-{ply}", statement, ply, [f"positions/{ply}"])
         elif len(after.piece_map()) <= 12 and not after.is_game_over():
             king = after.king(after.turn)
@@ -155,7 +157,7 @@ def offline_plan(facts, pivot, labels):
                 if index == 2 and "alt-2" in facts:
                     script.append("alt-2")
             consequence = consequences.get(facts[key]["ply"])
-            if consequence and (key in (chosen[-1], f"move-{pivot}") or len(chosen) <= 5):
+            if consequence and (key in (chosen[-1], f"move-{pivot}") or len(script) < 10):
                 script.append(consequence)
         scripts.append(dict(angle=angle, title=labels[angle], hook=hook, takeaway=takeaway,
                             difficulty="beginner", runtime=45, script=script))
@@ -319,6 +321,8 @@ def main():
     pivot = selected["deep"]["ply"]
     selected["side"] = record["moveAssessments"][pivot - 1]["player"]
     facts = fact_bank(record, selected["deep"])
+    if len([fact for fact in facts.values() if fact["uci"] and fact["kind"] == "recorded"]) < 4:
+        raise SystemExit("The verified segment has too few recorded moves for this documentary format.")
     labels = titles(selected["moment"])
     if live:
         response, provider = request_plan(
@@ -356,7 +360,7 @@ def main():
         "audio": {"model": timing["model"], "voice": args.voice, "signal": studio.audit, "timing": timing},
         "durationSeconds": duration, "render": {"fps": 30, "width": 1080, "height": 1920, "codec": "H.264/AAC"},
         "validation": {"engineEvidence": True, "storyboard": True, "freshNarration": True, "mp4Decode": None},
-        "warnings": warnings,
+        "warnings": warnings, "selectionOverride": args.candidate, "treatmentOverride": args.treatment,
     })
     print(f"{provider['mode']} / {selected['moment']['id']} / {treatment['angle']} / {duration:.1f}s")
 
