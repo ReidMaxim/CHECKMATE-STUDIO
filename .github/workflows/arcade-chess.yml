@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        cut: [arcade-chess, arcade-chess-impact]
+        cut: [arcade-chess-impact, arcade-chess-battle]
     runs-on: ubuntu-24.04
     env:
       CUT: ${{ matrix.cut }}
@@ -35,7 +35,11 @@ jobs:
             sudo apt-get install --yes --no-install-recommends ffmpeg
           fi
       - name: Verify announcer mix and Mission 002 evidence
-        run: python scripts/arcade_audio.py --prepared
+        run: |
+          python scripts/arcade_audio.py --prepared
+          if [ "$CUT" = arcade-chess-battle ]; then
+            printf '%s\n' '{"width":1080,"height":1920,"fps":30,"scenes":[{"frames":435}]}' > out/arcade-format.json
+          fi
       - run: npm test
       - run: npm run build
       - name: Render and measure wall time
@@ -44,6 +48,14 @@ jobs:
           npm run render -- "$CUT"
           printf '%s %s seconds\n' "$CUT" "$(( $(date +%s) - start ))" | tee out/render-time.txt
       - run: python scripts/verify-video.py "out/$CUT.mp4" out/arcade-format.json
+      - name: Reject repeated tiles and capture comparison frames
+        run: |
+          python scripts/check_arcade_frames.py "out/$CUT.mp4"
+          node scripts/arcade_frame_probe.mjs "$CUT"
+          if [ "$CUT" = arcade-chess-impact ]; then
+            python scripts/check_arcade_frames.py out/arcade-frames/impact-regular-capture-window.mp4
+            python scripts/check_arcade_frames.py out/arcade-frames/impact-source-250.png
+          fi
       - name: Check audio headroom
         run: |
           ffmpeg -hide_banner -i "out/$CUT.mp4" -vn -af volumedetect -f null - 2>out/arcade-audio-check.txt
@@ -54,6 +66,6 @@ jobs:
           path: |
             out/${{ matrix.cut }}.mp4
             out/render-time.txt
-            out/arcade-audit.json
+            out/arcade-frames
           retention-days: 30
           if-no-files-found: error

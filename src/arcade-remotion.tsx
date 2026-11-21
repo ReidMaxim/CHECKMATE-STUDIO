@@ -3,6 +3,7 @@ import '@fontsource/dm-sans/latin-700.css';
 import cues from './arcade-cues.json';
 import evidence from '../examples/analysis/legal-mate.json';
 import './arcade.css';
+import {ArcadeBattle,battleLength} from './arcade-battle';
 
 const fps=30;
 const seconds=26;
@@ -141,5 +142,6 @@ function lineLabel(ply:number){
 const format={width:1080,height:1920,fps,durationInFrames:fps*seconds};
 registerRoot(()=> <>
   <Composition id="arcade-chess" component={Arcade} defaultProps={{impact:false}} {...format}/>
+  <Composition id="arcade-chess-battle" component={ArcadeBattle} {...format} durationInFrames={battleLength}/>
   <Composition id="arcade-chess-impact" component={Arcade} defaultProps={{impact:true}} {...format}/>
 </>);
