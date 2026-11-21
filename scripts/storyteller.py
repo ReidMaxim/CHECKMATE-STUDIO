@@ -1,5 +1,8 @@
 """Create an evidence-constrained documentary plan and render-ready storyboard."""
 import argparse
+from array import array
+import hashlib
+import subprocess
 import json
 import re
 from pathlib import Path
@@ -189,13 +192,32 @@ def direct(record,deep,proposal,beats):
     return scenes, ledger
 
 
+def prepared_voice(scenes):
+    """Use exact Kokoro phrase takes for the default keyless CI demonstration."""
+    folder=ROOT/"examples/storyteller"
+    manifest=json.loads((folder/"deep-blue-voice.json").read_text())
+    asset=folder/"deep-blue-kokoro.mp3"
+    if hashlib.sha256(asset.read_bytes()).hexdigest()!=manifest["sha256"]:
+        raise ValueError("Prepared Kokoro recording failed checksum verification")
+    if any(phrase[2] not in manifest["phrases"] for shot in scenes for phrase in shot["phrases"]):
+        raise ValueError("This board plan contains speech absent from the offline voice fixture")
+    pcm=array("h",subprocess.check_output(["ffmpeg","-v","error","-i",str(asset),"-f","s16le","-"]))
+    def take(text):
+        start,count=manifest["phrases"][text]
+        return pcm[start:start+count]
+    return take
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--evidence",type=Path,default=ROOT/"examples/analysis/deep-blue.json")
     parser.add_argument("--candidate")
     parser.add_argument("--depth",type=int,default=17)
     parser.add_argument("--mode",choices=["offline","live"],default="offline")
+    parser.add_argument("--prepared-voice",action="store_true")
     args=parser.parse_args()
+    if args.prepared_voice and (args.mode!="offline" or args.candidate):
+        parser.error("Prepared voice applies only to the default offline demonstration")
     record=validate(json.loads(args.evidence.read_text()))
     moment=choose(record,args.candidate)
     deep=verify_deep(record,moment,args.depth,ROOT/".cache/stockfish/stockfish")
@@ -211,7 +233,9 @@ def main():
                    pgn=record["game"]["pgn"],sources=sources)
     if any(shot.get("line")=="engine-choice" for shot in scenes):
         project["variations"]={"engine-choice":{"fromPly":deep["ply"]-1,"moves":[deep["best"]["moves"][0]["san"]]}}
-    produce({"scenes":scenes},"kokoro",ROOT/".cache/kokoro","am_michael",.93,project=project,stem="storyteller")
+    synthesis=prepared_voice(scenes) if args.prepared_voice else None
+    provider["audioSource"]="prepared-kokoro-takes" if synthesis else "fresh-kokoro-synthesis"
+    produce({"scenes":scenes},"kokoro",ROOT/".cache/kokoro","am_michael",.93,project=project,stem="storyteller",synthesis=synthesis)
     storyboard=compile_project(json.loads((ROOT/"projects/storyteller-documentary.json").read_text()))
     runtime=sum(shot["frames"] for shot in storyboard["scenes"])/storyboard["fps"]
     if not 35<=runtime<=60:

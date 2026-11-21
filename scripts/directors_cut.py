@@ -100,8 +100,8 @@ def trim(samples):
     return samples[max(0, active[0]-240):active[-1]+320]
 
 
-def produce(spec, provider, model_dir, voice, rate, *, project=None, stem="director"):
-    synthesize = speaker(provider, model_dir, voice, rate)
+def produce(spec, provider, model_dir, voice, rate, *, project=None, stem="director", synthesis=None):
+    synthesize = synthesis or speaker(provider, model_dir, voice, rate)
     baseline = project.copy() if project else json.loads((ROOT / "projects/legal-mate.json").read_text())
     if project is None:
         baseline.update(id="legal-directors-cut", title="A Queen for a King · Director’s Cut")

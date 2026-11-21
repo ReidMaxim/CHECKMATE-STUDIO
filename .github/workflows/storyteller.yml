@@ -63,6 +63,7 @@ jobs:
         run: |
           selection=()
           if [ -n "$CANDIDATE" ]; then selection=(--candidate "$CANDIDATE"); fi
+          if [ "$MODE" = offline ] && [ -z "$CANDIDATE" ]; then selection+=(--prepared-voice); fi
           python scripts/storyteller.py --mode "$MODE" --depth "$DEPTH" "${selection[@]}"
       - run: npm run build
       - name: Render documentary with pinned Chromium
