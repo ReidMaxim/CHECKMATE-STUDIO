@@ -7,3 +7,7 @@ src/generated.json
 .cache/
 projects/legal-directors-cut.json
 public/director-*.wav
+
+projects/storyteller-documentary.json
+public/storyteller-*.wav
+src/storyteller-review.generated.json

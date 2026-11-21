@@ -1,0 +1,65 @@
+{
+  "sha256": "3ae0879904472061f827ffbb60c1149e2b9efd43373faf139b00b0e98a2b64f4",
+  "phrases": {
+    "One reply can give an attack room to grow.": [
+      3200,
+      66174
+    ],
+    "Put yourself on the defending side.": [
+      76000,
+      52907
+    ],
+    "Black moves the pawn to H six.": [
+      148800,
+      47097
+    ],
+    "White’s knight takes the pawn on E six.": [
+      215200,
+      53727
+    ],
+    "Black moves the queen to E seven.": [
+      288800,
+      46992
+    ],
+    "Stockfish scores this reply worse for Black.": [
+      342400,
+      63125
+    ],
+    "Here is the engine line.": [
+      424800,
+      39251
+    ],
+    "Black’s pawn takes the knight on E six.": [
+      672800,
+      56500
+    ],
+    "Now back to the recorded game.": [
+      560000,
+      41479
+    ],
+    "White castles short.": [
+      620800,
+      32760
+    ],
+    "White moves the bishop to G six.": [
+      748800,
+      53973
+    ],
+    "The king is in check.": [
+      809600,
+      31430
+    ],
+    "Black moves the king to D eight.": [
+      860800,
+      43757
+    ],
+    "Before you grab material, check king safety.": [
+      924000,
+      65424
+    ],
+    "Look at your opponent’s next forcing move.": [
+      996000,
+      61360
+    ]
+  }
+}
