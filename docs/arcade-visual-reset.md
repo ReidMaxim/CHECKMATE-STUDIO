@@ -6,7 +6,7 @@ The archived Impact Polish export is preserved as [the original Actions artifact
 
 This points to the video capture/transfer route. The archived export alone cannot establish the exact internal Chromium/Remotion fault or separate rasterization from the pixel handoff to the encoder. To isolate the path in CI, the capture-window probe holds the composition, browser, GL setting, dimensions and encoder options constant, changing only shared-memory capture. The archive remains the reliable positive control if the intermittent problem fails to recur in the shorter window.
 
-The mitigation disables Remotion's shared-memory frame capture for the three arcade composition IDs, retaining the existing Chromium and FFmpeg encoder. The documentary uses its existing render settings. CI scans the full decoded Impact repair and Battle Cut for repeated header tiles and saves capture samples. The detector targets the observed repeat pattern, not every possible kind of visual corruption.
+Disabling shared-memory capture alone still left a frame flagged in one cloud Battle Cut. The arcade CI also pins Chromium Headless Shell 141 (already clean in a local Battle Cut). The existing Remotion/FFmpeg encoder and documentary render settings are retained. CI scans the full decoded Impact repair and Battle Cut for repeated header tiles and saves capture samples. The detector targets the observed repeat pattern, not every possible kind of visual corruption.
 
 ## Battle Cut
 

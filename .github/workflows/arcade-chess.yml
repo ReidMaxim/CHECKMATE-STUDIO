@@ -34,6 +34,12 @@ jobs:
             sudo apt-get update
             sudo apt-get install --yes --no-install-recommends ffmpeg
           fi
+      - name: Pin the arcade Chromium binary
+        run: |
+          npm install --prefix "$RUNNER_TEMP/arcade-browser" --no-audit --no-fund @sparticuz/chromium@141.0.0
+          browser=$(node --input-type=module -e 'const c=(await import(process.env.RUNNER_TEMP+"/arcade-browser/node_modules/@sparticuz/chromium/build/esm/index.js")).default; process.stdout.write(await c.executablePath())')
+          "$browser" --version
+          printf 'CHROMIUM_BIN=%s\n' "$browser" >> "$GITHUB_ENV"
       - name: Verify announcer mix and Mission 002 evidence
         run: |
           python scripts/arcade_audio.py --prepared
@@ -69,3 +75,12 @@ jobs:
             out/arcade-frames
           retention-days: 30
           if-no-files-found: error
+      - uses: actions/upload-artifact@v5
+        if: failure()
+        with:
+          name: ${{ matrix.cut }}-diagnostic
+          path: |
+            out/${{ matrix.cut }}.mp4
+            out/arcade-frames
+          retention-days: 7
+          if-no-files-found: ignore
