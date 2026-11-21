@@ -1,0 +1,21 @@
+.film{background:radial-gradient(ellipse at 44% 42%,#283b2d 2%,#151e19 58%,#101612 95%);color:#f7efdd;font-family:'DM Sans',sans-serif;overflow:hidden}
+.film-grid{position:absolute;inset:0;opacity:.2;background:repeating-linear-gradient(0deg,transparent 0 47px,#ffffff0d 47px 48px);pointer-events:none}
+.film-kicker,.film-title,.film-board-label,.film-caption,.film-footer,.film-overlay,.film-eval{position:absolute;left:92px;width:830px}
+.film-kicker{top:217px;letter-spacing:.22em;font-weight:700;font-size:25px;color:#edc888}
+.film-kicker i{display:inline-block;background:#edc888;width:12px;height:12px;margin:0 18px 3px 0;transform:rotate(45deg)}
+.film-title{top:274px;font-family:'Playfair Display',Georgia,serif;font-size:91px;letter-spacing:-.035em;line-height:1.03;text-wrap:balance}
+.film-board-label{top:505px;display:flex;justify-content:space-between;color:#f0d09b;font-size:24px;letter-spacing:.12em;font-weight:700}
+.film-board{position:absolute;top:556px;left:92px;width:830px;height:830px;overflow:hidden;border-radius:12px;box-shadow:0 0 0 2px #ddc18b66, 0 25px 65px #0008}
+.film-caption{top:1460px;font-size:57px;line-height:1.13;font-weight:700;text-wrap:balance;letter-spacing:-.025em}
+.film-footer{top:1693px;border-top:2px solid #dbc89859;padding-top:20px;display:flex;justify-content:space-between;color:#c9c7b7;font-size:22px;letter-spacing:.16em}
+.film-gold{color:#edc888}
+.film-eval,.film-overlay{top:1409px;font-size:23px;line-height:1.1;color:#edc888}
+.film-eval span{height:4px;display:block;background:#edc888;margin-bottom:5px}
+
+.film-director{background:radial-gradient(ellipse at 45% 47%,#273d30,#141e19 59%,#0c130f 94%)}
+.film-director .film-board{border-radius:8px;box-shadow:0 0 0 1px #ead6a980,0 0 0 9px #111d16,0 35px 75px #0009}
+.film-director .film-title{font-size:86px}
+.film-director .film-board-label{color:#e5c99a}
+.film-director .film-caption{top:1443px;font-size:53px;line-height:1.13}
+.film-caption-boxed span{display:inline-block;box-sizing:border-box;max-width:100%;padding:15px 22px 17px;background:#0b120fe8;border-left:4px solid #cfa86f;border-radius:0 9px 9px 0}
+.film-director .film-eval{background:#0b120f;padding:6px 12px;line-height:1.25}
