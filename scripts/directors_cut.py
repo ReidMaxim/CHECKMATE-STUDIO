@@ -100,9 +100,11 @@ def trim(samples):
     return samples[max(0, active[0]-240):active[-1]+320]
 
 
-def produce(spec, provider, model_dir, voice, rate):
+def produce(spec, provider, model_dir, voice, rate, *, project=None, stem="director"):
     synthesize = speaker(provider, model_dir, voice, rate)
-    baseline = json.loads((ROOT / "projects/legal-mate.json").read_text())
+    baseline = project.copy() if project else json.loads((ROOT / "projects/legal-mate.json").read_text())
+    if project is None:
+        baseline.update(id="legal-directors-cut", title="A Queen for a King · Director’s Cut")
     narration, effects = array("h"), array("h")
     authored = []
     audit = []
@@ -124,10 +126,12 @@ def produce(spec, provider, model_dir, voice, rate):
                 raise ValueError(f"Sound exceeds scene: {shot['title']}")
             effects[at:at+len(pulse)] = pulse
         scene = {key: shot[key] for key in ("preset", "title", "ply", "camera")}
+        if "line" in shot:
+            scene["line"] = shot["line"]
         if "settleCamera" in shot:
             scene["settleCamera"] = shot["settleCamera"]
         scene.update(frames=duration, moveAt=move_at, moveFrames=MOVE_FRAMES if "anchor" in shot else 0,
-                     highlights=shot.get("highlights", []), arrows=shot.get("arrows", []), transition="glide",
+                     highlights=shot.get("highlights", []), arrows=shot.get("arrows", []), transition=shot.get("transition","glide"),
                      captions=[{"from": cue["from_"], "to": cue["to"], "text": cue["text"]} for cue in cues])
         authored.append(scene)
         audit.append({"title": shot["title"], "start": start // SAMPLES, "frames": duration,
@@ -136,24 +140,23 @@ def produce(spec, provider, model_dir, voice, rate):
     with tempfile.TemporaryDirectory() as folder:
         raw = Path(folder) / "raw.wav"
         write_wave(raw, narration)
-        speech_path = ROOT / "public/director-narration.wav"
+        speech_path = ROOT / f"public/{stem}-narration.wav"
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(raw), "-af",
                         "loudnorm=I=-18:TP=-4:LRA=9", "-ar", str(RATE), "-ac", "1",
                         str(speech_path)], check=True)
         with wave.open(str(speech_path), "rb") as stream:
             if abs(stream.getnframes() - len(narration)) > SAMPLES:
                 raise ValueError("Normalized audio length drifted by more than one video frame")
-    write_wave(ROOT / "public/director-effects.wav", effects)
+    write_wave(ROOT / f"public/{stem}-effects.wav", effects)
     model = "Kokoro 82M v1.0 INT8" if provider == "kokoro" else "Flite fallback"
-    baseline.update(id="legal-directors-cut", title="A Queen for a King · Director’s Cut",
-                    presentation="director", captionStyle="boxed", scenes=authored,
-                    audio=[dict(asset="director-narration.wav", start=0, volume=.90, kind="narration",
+    baseline.update(presentation="director", captionStyle="boxed", scenes=authored,
+                    audio=[dict(asset=f"{stem}-narration.wav", start=0, volume=.90, kind="narration",
                                 label=f"{model} · {voice if provider == 'kokoro' else 'slt'}"),
-                           dict(asset="director-effects.wav", start=0, volume=.50, kind="effect",
+                           dict(asset=f"{stem}-effects.wav", start=0, volume=.50, kind="effect",
                                 label="Original synthesized effects")])
-    (ROOT / "projects/legal-directors-cut.json").write_text(json.dumps(baseline, indent=2))
+    (ROOT / f"projects/{baseline['id']}.json").write_text(json.dumps(baseline, indent=2))
     (ROOT / "out").mkdir(exist_ok=True)
-    (ROOT / "out/director-timing.json").write_text(json.dumps(
+    (ROOT / f"out/{stem}-timing.json").write_text(json.dumps(
         {"provider": provider, "model": model, "voice": voice if provider == "kokoro" else "slt",
          "rate": rate, "fps": FPS, "frames": len(narration) // SAMPLES, "scenes": audit}, indent=2))
     print(f"{model}: {len(narration)/RATE:.2f}s for {len(authored)} scenes")

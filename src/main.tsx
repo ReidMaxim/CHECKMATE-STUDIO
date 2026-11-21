@@ -3,6 +3,7 @@ import {createRoot} from 'react-dom/client';
 import {Player, type PlayerRef} from '@remotion/player';
 import {Film} from './Film';
 import {AnalysisPanel} from './AnalysisPanel';
+import {StorytellerPanel} from './StorytellerPanel';
 import {projects} from './projects';
 import {timeline} from './storyboard';
 import './studio.css';
@@ -26,8 +27,9 @@ function Studio() {
   const project = projects.find(item => item.id===id);
   const shots = project ? timeline(project) : [];
   const director = project?.presentation === 'director';
-  const workflow = workflows + (director ? 'directors-cut.yml' : 'render.yml');
-  const artifact = director ? 'directors-cut' : 'sample-video';
+  const isStory = id==='storyteller-documentary';
+  const workflow = workflows + (isStory ? 'storyteller.yml' : director ? 'directors-cut.yml' : 'render.yml');
+  const artifact = isStory ? 'storyteller-documentary' : director ? 'directors-cut' : 'sample-video';
   const footerTime = (frames:number) => new Intl.NumberFormat('en-US',{minimumIntegerDigits:2}).format(Math.floor(frames/(project?.fps ?? 30)));
   function jumpTo(frame:number) {
     const instance=player.current;
@@ -82,6 +84,7 @@ function Studio() {
         </div>
       </div> : <p className="panel details">No projects are available. Add a validated storyboard to the next build.</p>}
       <AnalysisPanel/>
+      <StorytellerPanel preview={()=>{setId("storyteller-documentary");document.getElementById("screening")?.scrollIntoView({block:"nearest"});}}/>
     </main>
   </>;
 }
