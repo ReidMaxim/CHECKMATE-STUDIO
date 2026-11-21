@@ -1,0 +1,9 @@
+[
+  {"time":0,"ply":8,"title":"QUEEN ON THE LINE","caption":"Take the queen. Lose the king.","speak":"Take the queen, lose the king!"},
+  {"time":3.7,"ply":9,"title":"THE BAIT","caption":"The knight opens the diagonal.","speak":"The knight opens the diagonal! The queen is exposed.","hit":1.25,"effect":"move"},
+  {"time":7.7,"ply":10,"title":"QUEEN CAPTURED","caption":"Black takes the queen!","speak":"Black takes the queen! But watch the bishop.","hit":0.66,"effect":"capture"},
+  {"time":12,"ply":11,"title":"COUNTERATTACK","caption":"Bishop takes F7. Check!","speak":"Bishop takes F seven. Check! The knight has its back.","hit":0.8,"effect":"check"},
+  {"time":16.25,"ply":12,"title":"ONLY LEGAL REPLY","caption":"The king has to step to E7.","speak":"The king has to step to E seven.","hit":1.32,"effect":"move"},
+  {"time":19.6,"ply":13,"title":"CHECKMATE","caption":"The second knight jumps to D5. Mate!","speak":"The second knight jumps to D five. Checkmate!","hit":1.64,"effect":"mate"},
+  {"time":23.1,"ply":13,"title":"WHITE WINS","caption":"Two knights. One trap.","speak":"Two knights. One trap."}
+]

@@ -1,0 +1,13 @@
+.battle{background:#20172e;color:#ffecbe;font-family:'DM Sans',sans-serif;overflow:hidden}
+.battle-gameplay{background:radial-gradient(ellipse at 48% 50%,#4c344f,#21182d 64%,#171527)}
+.battle-stage{position:absolute;inset:0;width:100%;height:100%;display:block;overflow:hidden}
+.battle-brand,.battle-credit,.battle-caption,.battle-board-label,.battle-cinematic-label{position:absolute;left:70px;width:890px;box-sizing:border-box}
+.battle-brand{top:210px;letter-spacing:.19em;color:#9ee8d3;font:700 29px monospace}
+.battle-brand span{color:#eeb479}
+.battle-credit{top:1660px;font:700 22px monospace;color:#cfadc0;letter-spacing:.14em}
+.battle-board-label{top:433px;display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #8b647b;padding:0 0 12px;font:700 37px monospace}
+.battle-board-label strong{color:#9ee8d3}
+.battle-caption{top:1464px;padding:17px 26px;background:#1a162c;color:#ffecbe;border-left:7px solid #eeb47e;font-size:47px;line-height:1.16}
+.battle-cinematic-label{top:305px;display:grid;gap:16px;color:#ffe2a1}
+.battle-cinematic-label span{font:700 29px monospace;letter-spacing:.10em;color:#c2e2d5}
+.battle-cinematic-label strong{font:900 68px/1 monospace;letter-spacing:-.06em;text-shadow:5px 6px #1e142e}

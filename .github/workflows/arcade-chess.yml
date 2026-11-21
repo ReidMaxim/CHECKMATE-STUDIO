@@ -1,0 +1,86 @@
+name: Render ARCADE//CHESS prototype
+on:
+  push:
+    branches: [mission-002-a-arcade-chess]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  arcade:
+    strategy:
+      fail-fast: false
+      matrix:
+        cut: [arcade-chess-impact, arcade-chess-battle]
+    runs-on: ubuntu-24.04
+    env:
+      CUT: ${{ matrix.cut }}
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24.22.3'
+          cache: npm
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - run: npm ci
+      - run: python -m pip install -r requirements.txt
+      - name: Install audio and video tooling
+        run: |
+          if ! command -v ffprobe >/dev/null || ! command -v ffmpeg >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install --yes --no-install-recommends ffmpeg
+          fi
+      - name: Pin the arcade Chromium binary
+        run: |
+          npm install --prefix "$RUNNER_TEMP/arcade-browser" --no-audit --no-fund @sparticuz/chromium@141.0.0
+          browser=$(node --input-type=module -e 'const c=(await import(process.env.RUNNER_TEMP+"/arcade-browser/node_modules/@sparticuz/chromium/build/esm/index.js")).default; process.stdout.write(await c.executablePath())')
+          "$browser" --version
+          printf 'CHROMIUM_BIN=%s\n' "$browser" >> "$GITHUB_ENV"
+      - name: Verify announcer mix and Mission 002 evidence
+        run: |
+          python scripts/arcade_audio.py --prepared
+          if [ "$CUT" = arcade-chess-battle ]; then
+            printf '%s\n' '{"width":1080,"height":1920,"fps":30,"scenes":[{"frames":435}]}' > out/arcade-format.json
+          fi
+      - run: npm test
+      - run: npm run build
+      - name: Render and measure wall time
+        run: |
+          start=$(date +%s)
+          npm run render -- "$CUT"
+          printf '%s %s seconds\n' "$CUT" "$(( $(date +%s) - start ))" | tee out/render-time.txt
+      - run: python scripts/verify-video.py "out/$CUT.mp4" out/arcade-format.json
+      - name: Reject repeated tiles and capture comparison frames
+        run: |
+          python scripts/check_arcade_frames.py "out/$CUT.mp4"
+          node scripts/arcade_frame_probe.mjs "$CUT"
+          if [ "$CUT" = arcade-chess-impact ]; then
+            python scripts/check_arcade_frames.py out/arcade-frames/impact-regular-capture-window.mp4
+            python scripts/check_arcade_frames.py out/arcade-frames/impact-source-250.png
+          fi
+      - name: Check audio headroom
+        run: |
+          ffmpeg -hide_banner -i "out/$CUT.mp4" -vn -af volumedetect -f null - 2>out/arcade-audio-check.txt
+          python -c 'import re; from pathlib import Path; peak=float(re.search(r"max_volume: (-?[\d.]+) dB",Path("out/arcade-audio-check.txt").read_text())[1]); print(f"Audio peak {peak} dBFS"); assert -12 <= peak <= -1'
+      - uses: actions/upload-artifact@v5
+        with:
+          name: ${{ matrix.cut }}
+          path: |
+            out/${{ matrix.cut }}.mp4
+            out/render-time.txt
+            out/arcade-frames
+          retention-days: 30
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v5
+        if: failure()
+        with:
+          name: ${{ matrix.cut }}-diagnostic
+          path: |
+            out/${{ matrix.cut }}.mp4
+            out/arcade-frames
+          retention-days: 7
+          if-no-files-found: ignore
