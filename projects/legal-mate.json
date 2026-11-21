@@ -1,0 +1,227 @@
+{
+  "version": 1,
+  "id": "legal-mate",
+  "title": "A queen for a king",
+  "series": "Chess Crimes",
+  "summary": "A bishop takes the queen. Two knights and a bishop finish the game.",
+  "sources": [
+    {
+      "label": "Edward Winter, Chess Notes 5720 · published variant with 4…g6",
+      "url": "https://www.chesshistory.com/winter/winter49.html#5720._Legall_game"
+    }
+  ],
+  "pgn": "[Event \"Published Légal mate line (kingside excerpt)\"]\n[Site \"?\"]\n[Date \"????.??.??\"]\n[Round \"?\"]\n[White \"Légal\"]\n[Black \"Saint Brie\"]\n[Result \"1-0\"]\n\n1. e4 e5 2. Bc4 d6 3. Nf3 Bg4 4. Nc3 g6 5. Nxe5 Bxd1 6. Bxf7+ Ke7 7. Nd5# 1-0\n",
+  "orientation": "white",
+  "theme": "forest",
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "audio": [
+    {
+      "asset": "legal-narration.mp3",
+      "start": 0,
+      "volume": 0.92,
+      "kind": "narration",
+      "label": "Synthetic test narration · Flite"
+    }
+  ],
+  "scenes": [
+    {
+      "preset": "establishing",
+      "title": "A queen for a king",
+      "frames": 180,
+      "ply": 8,
+      "moveFrames": 0,
+      "camera": {
+        "focus": null,
+        "zoom": 1
+      },
+      "highlights": [
+        "d1",
+        "g4"
+      ],
+      "arrows": [],
+      "transition": "cut",
+      "captions": [
+        {
+          "from": 0,
+          "to": 90,
+          "text": "Would you let someone take your queen?"
+        },
+        {
+          "from": 90,
+          "to": 180,
+          "text": "White is about to leave it hanging on purpose."
+        }
+      ]
+    },
+    {
+      "preset": "threat",
+      "title": "Follow the diagonal",
+      "frames": 210,
+      "ply": 8,
+      "moveFrames": 0,
+      "camera": {
+        "focus": "e2",
+        "zoom": 1.13
+      },
+      "highlights": [
+        "f3",
+        "d1"
+      ],
+      "arrows": [
+        [
+          "g4",
+          "d1"
+        ]
+      ],
+      "transition": "glide",
+      "captions": [
+        {
+          "from": 0,
+          "to": 90,
+          "text": "Black’s bishop is staring down the knight."
+        },
+        {
+          "from": 90,
+          "to": 210,
+          "text": "If the knight moves, the queen is exposed."
+        }
+      ]
+    },
+    {
+      "preset": "critical",
+      "title": "The knight moves",
+      "frames": 150,
+      "ply": 9,
+      "moveFrames": 24,
+      "camera": {
+        "focus": "e4",
+        "zoom": 1.08
+      },
+      "highlights": [
+        "e5",
+        "d1"
+      ],
+      "arrows": [],
+      "transition": "glide",
+      "captions": [
+        {
+          "from": 0,
+          "to": 150,
+          "text": "White takes on e5 anyway. The queen is wide open."
+        }
+      ]
+    },
+    {
+      "preset": "suspense",
+      "title": "Black takes the bait",
+      "frames": 150,
+      "ply": 10,
+      "moveFrames": 24,
+      "camera": {
+        "focus": null,
+        "zoom": 1
+      },
+      "highlights": [
+        "d1",
+        "c4"
+      ],
+      "arrows": [],
+      "transition": "glide",
+      "captions": [
+        {
+          "from": 0,
+          "to": 150,
+          "text": "Black takes the queen. Now watch the white bishop."
+        }
+      ]
+    },
+    {
+      "preset": "reveal",
+      "title": "Check on f7",
+      "frames": 150,
+      "ply": 11,
+      "moveFrames": 24,
+      "camera": {
+        "focus": null,
+        "zoom": 1
+      },
+      "highlights": [
+        "f7",
+        "e5"
+      ],
+      "arrows": [
+        [
+          "e5",
+          "f7"
+        ]
+      ],
+      "transition": "cut",
+      "captions": [
+        {
+          "from": 0,
+          "to": 150,
+          "text": "Bishop takes f7, with check. The knight on e5 protects it."
+        }
+      ]
+    },
+    {
+      "preset": "reveal",
+      "title": "The king steps out",
+      "frames": 120,
+      "ply": 12,
+      "moveFrames": 24,
+      "camera": {
+        "focus": null,
+        "zoom": 1
+      },
+      "highlights": [
+        "e7"
+      ],
+      "arrows": [],
+      "transition": "cut",
+      "captions": [
+        {
+          "from": 0,
+          "to": 120,
+          "text": "The king has one legal reply: step to e7."
+        }
+      ]
+    },
+    {
+      "preset": "final",
+      "title": "Two knights. One mate.",
+      "frames": 270,
+      "ply": 13,
+      "moveFrames": 24,
+      "camera": {
+        "focus": null,
+        "zoom": 1
+      },
+      "highlights": [
+        "d5",
+        "e7"
+      ],
+      "arrows": [
+        [
+          "d5",
+          "e7"
+        ]
+      ],
+      "transition": "cut",
+      "captions": [
+        {
+          "from": 0,
+          "to": 120,
+          "text": "The other knight jumps to d5. Checkmate."
+        },
+        {
+          "from": 120,
+          "to": 270,
+          "text": "Before you grab the queen, look at the checks you’re giving away."
+        }
+      ]
+    }
+  ]
+}
