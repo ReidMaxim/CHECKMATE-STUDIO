@@ -1,0 +1,7 @@
+[Event "King and pawn practice position"]
+[SetUp "1"]
+[FEN "4k3/8/4K3/4P3/8/8/8/8 w - - 0 1"]
+[Source "CHECKMATE//STUDIO original training position"]
+[Result "*"]
+
+1. Kf5 *

@@ -1,1 +1,2 @@
 chess==1.11.2
+jsonschema==4.26.0

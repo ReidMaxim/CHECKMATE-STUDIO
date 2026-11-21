@@ -1,0 +1,18 @@
+.analysis{margin-top:36px;scroll-margin-top:16px}
+.analysis .heading h2{font:600 clamp(2rem,5vw,3rem)/1.12 'Playfair Display',Georgia,serif;letter-spacing:-.03em}
+.analysis select{margin:8px 0 14px;max-width:480px}
+.analysis-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+.analysis h3{margin:0 0 8px}
+.analysis-board{max-width:460px;margin:12px auto;border-radius:8px;overflow:hidden}
+.analysis button{border:1px solid #53655a;border-radius:8px;background:#101a14;color:#f4ecdb;min-height:44px;padding:9px 12px;cursor:pointer}
+.analysis button:disabled{opacity:.45;cursor:default}
+.analysis-controls{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.analysis input[type=range]{display:block;width:100%;min-height:44px;accent-color:#e9c484}
+.analysis-compare,.analysis-moment{border-top:1px solid #39483e;margin-top:12px;padding-top:12px}
+.analysis-compare button,.analysis-moment button{margin:3px 0}
+.analysis-moment button{display:flex;width:100%;justify-content:space-between;gap:8px;text-align:left;align-items:center}
+.analysis-moment button span{white-space:nowrap;color:#e9c484}
+.analysis-moment button[aria-pressed=true]{border-color:#e9c484}
+.analysis-moment dl div{display:flex;justify-content:space-between;gap:8px}
+.analysis li{margin-bottom:8px}
+@media(max-width:720px){.analysis-grid{grid-template-columns:minmax(0,1fr)}}
