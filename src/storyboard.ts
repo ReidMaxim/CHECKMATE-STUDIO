@@ -8,7 +8,7 @@ export const presets = ['establishing', 'threat', 'critical', 'variation', 'eval
 const camera = z.strictObject({focus: square.nullable(), zoom: z.number().min(1).max(1.35)});
 const scene = z.strictObject({
   preset: z.enum(presets), title: text, frames: frame.min(1), ply: frame,
-  line: text.optional(), moveFrames: frame,
+  line: text.optional(), chapter: frame.min(1).optional(), moveFrames: frame,
   camera, settleCamera: camera.optional(), moveAt: frame.optional(),
   highlights: z.array(square), arrows: z.array(z.tuple([square, square]).refine(([a,b]) => a !== b)),
   transition: z.enum(['cut', 'glide']), captions: z.array(cue), overlay: text.optional(),

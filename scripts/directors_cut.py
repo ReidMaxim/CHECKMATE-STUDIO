@@ -7,6 +7,7 @@ from pathlib import Path
 import random
 import subprocess
 import tempfile
+from textwrap import wrap
 import wave
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -30,7 +31,7 @@ def plan(scene, lengths):
     cursor = frames(scene["lead"])
     cues = []
     for (caption, pause, *_), length in zip(scene["phrases"], lengths, strict=True):
-        if len(caption) > MAX_CAPTION or length < SAMPLES:
+        if (len(caption) > MAX_CAPTION and not scene.get("chapter")) or length < SAMPLES:
             raise ValueError(f"Caption exceeds safe budget or audio is too short: {caption}")
         end = cursor + ceil(length / SAMPLES)
         cues.append(dict(from_=cursor, to=end, text=caption))
@@ -41,7 +42,30 @@ def plan(scene, lengths):
         move_at = cue["from_"] + 6
         if move_at + MOVE_FRAMES > cue["to"]:
             raise ValueError(f"Move must land during its spoken phrase: {scene['title']}")
-    return cues, cursor + frames(scene["tail"]), move_at
+    if "visualMoveAt" in scene:
+        move_at = frames(scene["visualMoveAt"])
+    duration = cursor + frames(scene["tail"])
+    if "visualMoveAt" in scene and move_at + MOVE_FRAMES >= duration:
+        raise ValueError("Visual move must finish inside its shot")
+    return cues, duration, move_at
+
+
+def caption_pages(cues, chapter):
+    if not chapter:
+        return [{"from": cue["from_"], "to": cue["to"], "text": cue["text"]} for cue in cues]
+    pages = []
+    for cue in cues:
+        lines = wrap(cue["text"], width=MAX_CAPTION, break_long_words=False, break_on_hyphens=False)
+        weights = [len(line.split()) for line in lines]
+        span = cue["to"] - cue["from_"]
+        start = cue["from_"]
+        for index, line in enumerate(lines, 1):
+            end = cue["from_"] + round(span * sum(weights[:index]) / sum(weights))
+            if end <= start:
+                raise ValueError("Caption page has no screen time")
+            pages.append({"from":start, "to":end, "text":line})
+            start = end
+    return pages
 
 
 def write_wave(path, samples):
@@ -118,7 +142,8 @@ def produce(spec, provider, model_dir, voice, rate, *, project=None, stem="direc
         for cue, samples in zip(cues, spoken, strict=True):
             at = start + cue["from_"] * SAMPLES
             narration[at:at+len(samples)] = samples
-        landing = move_at + MOVE_FRAMES if "anchor" in shot else 0
+        animated = "anchor" in shot or "visualMoveAt" in shot
+        landing = move_at + MOVE_FRAMES if animated else 0
         if shot.get("effect"):
             at = start + landing * SAMPLES
             pulse = sound(shot["effect"])
@@ -126,17 +151,22 @@ def produce(spec, provider, model_dir, voice, rate, *, project=None, stem="direc
                 raise ValueError(f"Sound exceeds scene: {shot['title']}")
             effects[at:at+len(pulse)] = pulse
         scene = {key: shot[key] for key in ("preset", "title", "ply", "camera")}
+        if "chapter" in shot:
+            scene["chapter"] = shot["chapter"]
         if "line" in shot:
             scene["line"] = shot["line"]
         if "settleCamera" in shot:
             scene["settleCamera"] = shot["settleCamera"]
-        scene.update(frames=duration, moveAt=move_at, moveFrames=MOVE_FRAMES if "anchor" in shot else 0,
+        scene.update(frames=duration, moveAt=move_at, moveFrames=MOVE_FRAMES if animated else 0,
                      highlights=shot.get("highlights", []), arrows=shot.get("arrows", []), transition=shot.get("transition","glide"),
-                     captions=[{"from": cue["from_"], "to": cue["to"], "text": cue["text"]} for cue in cues])
+                     captions=caption_pages(cues, shot.get("chapter"))
         authored.append(scene)
         audit.append({"title": shot["title"], "start": start // SAMPLES, "frames": duration,
                       "spokenSamples": [len(samples) for samples in spoken], "moveAt": move_at,
                       "anchor": shot.get("anchor"), "cues": scene["captions"]})
+        if "chapter" in shot:
+            audit[-1].update(chapter=shot["chapter"], phrases=[
+                {"text": cue["text"], "from": cue["from_"], "to": cue["to"]} for cue in cues])
     with tempfile.TemporaryDirectory() as folder:
         raw = Path(folder) / "raw.wav"
         write_wave(raw, narration)

@@ -10,6 +10,7 @@ import chess
 
 from chess_intelligence import ROOT, Stockfish, analyze, game_from, validate
 from compile import compile_project
+from commentary_pass import direct_commentary
 from directors_cut import produce
 from live_direction import shape_scenes
 from story_provider import request_plan
@@ -293,6 +294,7 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--mode", choices=("offline", "live", "auto"), default="offline")
     parser.add_argument("--candidate")
+    parser.add_argument("--edition", choices=("replay", "commentary"), default="commentary")
     parser.add_argument("--treatment", choices=ANGLES)
     parser.add_argument("--source")
     parser.add_argument("--depth", type=int, choices=range(11, 19), default=16)
@@ -324,7 +326,7 @@ def main():
     if len([fact for fact in facts.values() if fact["uci"] and fact["kind"] == "recorded"]) < 4:
         raise SystemExit("The verified segment has too few recorded moves for this documentary format.")
     labels = titles(selected["moment"])
-    if live:
+    if live and args.edition == "replay":
         response, provider = request_plan(
             {"criticalMove": f"move-{pivot}", "titles": labels, "facts": facts, "editorialGrammar": EDITORIAL.pattern},
             instructions=DIRECTOR, max_tokens=2600)
@@ -332,9 +334,12 @@ def main():
     else:
         response = offline_plan(facts, pivot, labels)
         provider = {"mode": "offline-regression", "model": None}
-    options = validate_treatments(response, facts, pivot, labels, live=live)
+    options = validate_treatments(response, facts, pivot, labels, live=live and args.edition == "replay")
     treatment = next(option for option in options if not args.treatment or option["angle"] == args.treatment)
-    scenes, ledger, rates, variation = direct(record, selected, treatment, facts)
+    if args.edition == "commentary":
+        scenes, ledger, rates, variation, provider = direct_commentary(record, selected, live)
+    else:
+        scenes, ledger, rates, variation = direct(record, selected, treatment, facts)
     project = project_for(record, selected, treatment, supplied_source, variation)
     studio = VoiceStudio(ROOT / ".cache/kokoro", args.voice, rates, model_file="kokoro-v1.0.onnx")
     produce({"scenes": scenes}, "kokoro", ROOT / ".cache/kokoro", args.voice, .95,
@@ -342,20 +347,24 @@ def main():
     storyboard_file = ROOT / "projects/unseen-documentary.json"
     storyboard = compile_project(json.loads(storyboard_file.read_text()))
     duration = sum(scene["frames"] for scene in storyboard["scenes"]) / storyboard["fps"]
-    if not 35 <= duration <= 60:
+    if args.edition == "replay" and not 35 <= duration <= 60:
         raise ValueError(f"Measured runtime {duration:.1f}s falls outside 35–60s")
     timing = json.loads((ROOT / "out/unseen-timing.json").read_text())
     write_json(args.output / "storyboard.json", storyboard)
     warnings = list(record["warnings"])
     if not live:
         warnings.append("Offline demonstration. No hosted screenplay was generated.")
+    if args.edition == "commentary" and not 35 <= duration <= 60:
+        warnings.append("Film is outside the preferred 35–60 second window.")
+    if live and args.edition == "commentary":
+        warnings.append("Hosted rewrite was checked by a separate model pass. Semantic entailment is not guaranteed by legal replay.")
     if not supplied_source:
         warnings.append("The supplied PGN has no external game-score attribution.")
     write_json(args.output / "manifest.json", {
         "schemaVersion": 1, "gameId": record["game"]["sha256"], "gameHeaders": record["game"]["headers"],
         "source": supplied_source, "engine": record["engine"], "analysis": "evidence.json",
         "analysisSettings": record["analysisSettings"], "candidates": candidates, "selected": selected,
-        "provider": provider, "rubric": RUBRIC, "treatments": options, "treatment": treatment["angle"],
+        "provider": provider, "edition": args.edition, "rubric": RUBRIC, "treatments": options, "treatment": treatment["angle"],
         "script": [claim["text"] for claim in ledger], "claimLedger": ledger, "storyboard": "storyboard.json",
         "audio": {"model": timing["model"], "voice": args.voice, "signal": studio.audit, "timing": timing},
         "durationSeconds": duration, "render": {"fps": 30, "width": 1080, "height": 1920, "codec": "H.264/AAC"},

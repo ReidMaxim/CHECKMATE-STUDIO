@@ -1,7 +1,7 @@
 name: Produce Storyteller documentary
 on:
   push:
-    branches: [mission-003-storyteller, mission-003-1-live-director]
+    branches: [mission-003-storyteller, mission-003-1-live-director, mission-004-1-human-commentary]
   workflow_dispatch:
     inputs:
       mode:
@@ -57,7 +57,7 @@ jobs:
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           STORY_MODEL: ${{ vars.STORY_MODEL }}
-          MODE: ${{ inputs.mode || (github.ref_name == 'mission-003-1-live-director' && 'fresh') || 'regression' }}
+          MODE: ${{ inputs.mode || ((github.ref_name == 'mission-003-1-live-director' || github.ref_name == 'mission-004-1-human-commentary') && 'fresh') || 'regression' }}
           CANDIDATE: ${{ inputs.candidate }}
           DEPTH: ${{ inputs.depth || '17' }}
         run: |
