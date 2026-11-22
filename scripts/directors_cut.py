@@ -181,13 +181,13 @@ def produce(spec, provider, model_dir, voice, rate, *, project=None, stem="direc
     model = model_label or ("Kokoro 82M v1.0 INT8" if provider == "kokoro" else "Flite fallback")
     baseline.update(presentation="director", captionStyle="boxed", scenes=authored,
                     audio=[dict(asset=f"{stem}-narration.wav", start=0, volume=.90, kind="narration",
-                                label=f"{model} · {voice if provider == 'kokoro' else 'slt'}"),
+                                label=f"{model} · {voice if provider != 'flite' else 'slt'}"),
                            dict(asset=f"{stem}-effects.wav", start=0, volume=.50, kind="effect",
                                 label="Original synthesized effects")])
     (ROOT / f"projects/{baseline['id']}.json").write_text(json.dumps(baseline, indent=2))
     (ROOT / "out").mkdir(exist_ok=True)
     (ROOT / f"out/{stem}-timing.json").write_text(json.dumps(
-        {"provider": provider, "model": model, "voice": voice if provider == "kokoro" else "slt",
+        {"provider": provider, "model": model, "voice": voice if provider != "flite" else "slt",
          "rate": rate, "fps": FPS, "frames": len(narration) // SAMPLES, "scenes": audit}, indent=2))
     print(f"{model}: {len(narration)/RATE:.2f}s for {len(authored)} scenes")
 

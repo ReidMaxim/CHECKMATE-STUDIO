@@ -1,0 +1,546 @@
+{
+  "reference": {
+    "commit": "bfcd80d36db72126a56bcd7a19d0c10858e9d807",
+    "sha256": "0965a0d49a52021eb158b67d6cdce6022b6181222bd922ba46b342ae83d2c883",
+    "evidenceSha256": "6a277a3f44b9679b5031ce1f76de7925815c405a2b01585f19e076588bcf2dd5",
+    "artifact": "https://github.com/ReidMaxim/CHECKMATE-STUDIO/actions/runs/44985067227/artifacts/14739048994"
+  },
+  "project": {
+    "version": 1,
+    "id": "unseen-documentary",
+    "title": "What the Capture Opens",
+    "series": "The Chess Lab",
+    "summary": "A documentary directed from the recorded game and verified Stockfish evidence.",
+    "sources": [
+      {
+        "label": "Supplied game score",
+        "url": "https://www.foreverchessgames.com/games/morphy-paul-vs-duke-karl-count-isouard-paris-it-1858-8208e76a"
+      }
+    ],
+    "pgn": "[Event \"Paris\"]\n[Site \"Paris\"]\n[Date \"1858.??.??\"]\n[Round \"?\"]\n[White \"Paul Morphy\"]\n[Black \"Duke Karl / Count Isouard\"]\n[Result \"1-0\"]\n[Source \"https://www.foreverchessgames.com/games/morphy-paul-vs-duke-karl-count-isouard-paris-it-1858-8208e76a\"]\n\n1. e4 e5 2. Nf3 d6 3. d4 Bg4 4. dxe5 Bxf3 5. Qxf3 dxe5 6. Bc4 Nf6 7. Qb3 Qe7 8. Nc3 c6 9. Bg5 b5 10. Nxb5 cxb5 11. Bxb5+ Nbd7 12. O-O-O Rd8 13. Rxd7 Rxd7 14. Rd1 Qe6 15. Bxd7+ Nxd7 16. Qb8+ Nxb8 17. Rd8# 1-0\n",
+    "orientation": "white",
+    "theme": "forest",
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "presentation": "director",
+    "captionStyle": "boxed",
+    "scenes": [
+      {
+        "preset": "establishing",
+        "title": "The blocked rook",
+        "ply": 30,
+        "camera": {
+          "focus": null,
+          "zoom": 1
+        },
+        "chapter": 1,
+        "frames": 221,
+        "moveAt": 0,
+        "moveFrames": 0,
+        "highlights": [
+          "d7",
+          "d1"
+        ],
+        "arrows": [],
+        "transition": "cut",
+        "captions": [
+          {
+            "from": 9,
+            "to": 106,
+            "text": "How do you move an opponent's knight? Look at the"
+          },
+          {
+            "from": 106,
+            "to": 184,
+            "text": "highlighted pieces. That single blocker is the whole"
+          },
+          {
+            "from": 184,
+            "to": 194,
+            "text": "problem."
+          }
+        ]
+      },
+      {
+        "preset": "critical",
+        "title": "The queen offer",
+        "ply": 31,
+        "camera": {
+          "focus": "b8",
+          "zoom": 1.035
+        },
+        "chapter": 2,
+        "frames": 229,
+        "moveAt": 39,
+        "moveFrames": 19,
+        "highlights": [
+          "b3",
+          "b8"
+        ],
+        "arrows": [],
+        "transition": "glide",
+        "captions": [
+          {
+            "from": 15,
+            "to": 106,
+            "text": "Here's the clever bit. The queen gives check and leaves"
+          },
+          {
+            "from": 106,
+            "to": 197,
+            "text": "itself hanging. Take a second and look for a reply."
+          }
+        ]
+      },
+      {
+        "preset": "threat",
+        "title": "The only reply",
+        "ply": 32,
+        "camera": {
+          "focus": "b8",
+          "zoom": 1.035
+        },
+        "chapter": 3,
+        "frames": 163,
+        "moveAt": 24,
+        "moveFrames": 19,
+        "highlights": [
+          "d7",
+          "b8"
+        ],
+        "arrows": [],
+        "transition": "glide",
+        "captions": [
+          {
+            "from": 8,
+            "to": 96,
+            "text": "The knight has to take. And the moment it does, look what"
+          },
+          {
+            "from": 96,
+            "to": 133,
+            "text": "opens up for the rook."
+          }
+        ]
+      },
+      {
+        "preset": "reveal",
+        "title": "An open path to D8",
+        "ply": 33,
+        "camera": {
+          "focus": "d8",
+          "zoom": 1.035
+        },
+        "chapter": 4,
+        "settleCamera": {
+          "focus": null,
+          "zoom": 1
+        },
+        "frames": 189,
+        "moveAt": 36,
+        "moveFrames": 19,
+        "highlights": [
+          "d1",
+          "d8"
+        ],
+        "arrows": [],
+        "transition": "glide",
+        "captions": [
+          {
+            "from": 20,
+            "to": 114,
+            "text": "There it is. The rook comes straight through to D8, and"
+          },
+          {
+            "from": 114,
+            "to": 165,
+            "text": "the king has nowhere to go."
+          }
+        ]
+      },
+      {
+        "preset": "final",
+        "title": "Count the replies",
+        "ply": 33,
+        "camera": {
+          "focus": null,
+          "zoom": 1
+        },
+        "chapter": 5,
+        "frames": 212,
+        "moveAt": 0,
+        "moveFrames": 0,
+        "highlights": [],
+        "arrows": [],
+        "transition": "cut",
+        "captions": [
+          {
+            "from": 3,
+            "to": 105,
+            "text": "The next time you see a sacrifice, look past the piece"
+          },
+          {
+            "from": 105,
+            "to": 180,
+            "text": "being taken. Ask what the capture opens up."
+          }
+        ]
+      }
+    ],
+    "audio": [
+      {
+        "asset": "unseen-narration.wav",
+        "start": 0,
+        "volume": 0.9,
+        "kind": "narration",
+        "label": "Kokoro 82M v1.0 FP32 · af_heart"
+      },
+      {
+        "asset": "unseen-effects.wav",
+        "start": 0,
+        "volume": 0.5,
+        "kind": "effect",
+        "label": "Original synthesized effects"
+      }
+    ]
+  },
+  "timing": {
+    "provider": "kokoro",
+    "model": "Kokoro 82M v1.0 FP32",
+    "voice": "af_heart",
+    "rate": 0.96,
+    "fps": 30,
+    "frames": 1014,
+    "scenes": [
+      {
+        "title": "The blocked rook",
+        "start": 0,
+        "frames": 221,
+        "spokenSamples": [
+          147861
+        ],
+        "moveAt": 0,
+        "anchor": null,
+        "cues": [
+          {
+            "from": 9,
+            "to": 106,
+            "text": "How do you move an opponent's knight? Look at the"
+          },
+          {
+            "from": 106,
+            "to": 184,
+            "text": "highlighted pieces. That single blocker is the whole"
+          },
+          {
+            "from": 184,
+            "to": 194,
+            "text": "problem."
+          }
+        ],
+        "chapter": 1,
+        "phrases": [
+          {
+            "text": "How do you move an opponent's knight? Look at the highlighted pieces. That single blocker is the whole problem.",
+            "from": 9,
+            "to": 194
+          }
+        ]
+      },
+      {
+        "title": "The queen offer",
+        "start": 221,
+        "frames": 229,
+        "spokenSamples": [
+          145563
+        ],
+        "moveAt": 39,
+        "anchor": null,
+        "cues": [
+          {
+            "from": 15,
+            "to": 106,
+            "text": "Here's the clever bit. The queen gives check and leaves"
+          },
+          {
+            "from": 106,
+            "to": 197,
+            "text": "itself hanging. Take a second and look for a reply."
+          }
+        ],
+        "chapter": 2,
+        "phrases": [
+          {
+            "text": "Here's the clever bit. The queen gives check and leaves itself hanging. Take a second and look for a reply.",
+            "from": 15,
+            "to": 197
+          }
+        ]
+      },
+      {
+        "title": "The only reply",
+        "start": 450,
+        "frames": 163,
+        "spokenSamples": [
+          99642
+        ],
+        "moveAt": 24,
+        "anchor": null,
+        "cues": [
+          {
+            "from": 8,
+            "to": 96,
+            "text": "The knight has to take. And the moment it does, look what"
+          },
+          {
+            "from": 96,
+            "to": 133,
+            "text": "opens up for the rook."
+          }
+        ],
+        "chapter": 3,
+        "phrases": [
+          {
+            "text": "The knight has to take. And the moment it does, look what opens up for the rook.",
+            "from": 8,
+            "to": 133
+          }
+        ]
+      },
+      {
+        "title": "An open path to D8",
+        "start": 613,
+        "frames": 189,
+        "spokenSamples": [
+          115757
+        ],
+        "moveAt": 36,
+        "anchor": null,
+        "cues": [
+          {
+            "from": 20,
+            "to": 114,
+            "text": "There it is. The rook comes straight through to D8, and"
+          },
+          {
+            "from": 114,
+            "to": 165,
+            "text": "the king has nowhere to go."
+          }
+        ],
+        "chapter": 4,
+        "phrases": [
+          {
+            "text": "There it is. The rook comes straight through to D8, and the king has nowhere to go.",
+            "from": 20,
+            "to": 165
+          }
+        ]
+      },
+      {
+        "title": "Count the replies",
+        "start": 802,
+        "frames": 212,
+        "spokenSamples": [
+          140960
+        ],
+        "moveAt": 0,
+        "anchor": null,
+        "cues": [
+          {
+            "from": 3,
+            "to": 105,
+            "text": "The next time you see a sacrifice, look past the piece"
+          },
+          {
+            "from": 105,
+            "to": 180,
+            "text": "being taken. Ask what the capture opens up."
+          }
+        ],
+        "chapter": 5,
+        "phrases": [
+          {
+            "text": "The next time you see a sacrifice, look past the piece being taken. Ask what the capture opens up.",
+            "from": 3,
+            "to": 180
+          }
+        ]
+      }
+    ]
+  },
+  "selected": "ply-33",
+  "rates": {
+    "How do you move an opponent's knight? Look at the highlighted pieces. That single blocker is the whole problem.": 0.96,
+    "Here's the clever bit. The queen gives check and leaves itself hanging. Take a second and look for a reply.": 0.95,
+    "The knight has to take. And the moment it does, look what opens up for the rook.": 0.98,
+    "There it is. The rook comes straight through to D eight, and the king has nowhere to go.": 0.91,
+    "The next time you see a sacrifice, look past the piece being taken. Ask what the capture opens up.": 0.94
+  },
+  "claims": [
+    {
+      "text": "How do you move an opponent's knight? Look at the highlighted pieces. That single blocker is the whole problem.",
+      "chapter": 1,
+      "factIds": [
+        "cleared-route"
+      ],
+      "claims": [
+        {
+          "claim": "The knight is the sole blocker on the mating route before the checking offer. Its forced capture clears the route.",
+          "references": [
+            "evidence.json#/positions/30",
+            "evidence.json#/positions/31",
+            "evidence.json#/positions/32"
+          ]
+        }
+      ],
+      "status": "replay-grounded"
+    },
+    {
+      "text": "Here's the clever bit. The queen gives check and leaves itself hanging. Take a second and look for a reply.",
+      "chapter": 2,
+      "factIds": [
+        "move-31",
+        "forced-capture"
+      ],
+      "claims": [
+        {
+          "claim": "Recorded move Qb8+ at ply 31",
+          "references": [
+            "evidence.json#/moveAssessments/30",
+            "evidence.json#/positions/31"
+          ]
+        },
+        {
+          "claim": "The checked side has exactly one legal move, and it captures the queen.",
+          "references": [
+            "evidence.json#/positions/31",
+            "evidence.json#/moveAssessments/31"
+          ]
+        }
+      ],
+      "status": "replay-grounded"
+    },
+    {
+      "text": "The knight has to take. And the moment it does, look what opens up for the rook.",
+      "chapter": 3,
+      "factIds": [
+        "move-32",
+        "forced-capture",
+        "cleared-route"
+      ],
+      "claims": [
+        {
+          "claim": "Recorded move Nxb8 at ply 32",
+          "references": [
+            "evidence.json#/moveAssessments/31",
+            "evidence.json#/positions/32"
+          ]
+        },
+        {
+          "claim": "The checked side has exactly one legal move, and it captures the queen.",
+          "references": [
+            "evidence.json#/positions/31",
+            "evidence.json#/moveAssessments/31"
+          ]
+        },
+        {
+          "claim": "The knight is the sole blocker on the mating route before the checking offer. Its forced capture clears the route.",
+          "references": [
+            "evidence.json#/positions/30",
+            "evidence.json#/positions/31",
+            "evidence.json#/positions/32"
+          ]
+        }
+      ],
+      "status": "replay-grounded"
+    },
+    {
+      "text": "There it is. The rook comes straight through to D8, and the king has nowhere to go.",
+      "chapter": 4,
+      "factIds": [
+        "move-33",
+        "mate",
+        "cleared-route"
+      ],
+      "claims": [
+        {
+          "claim": "Recorded move Rd8# at ply 33",
+          "references": [
+            "evidence.json#/moveAssessments/32",
+            "evidence.json#/positions/33"
+          ]
+        },
+        {
+          "claim": "The rook delivers checkmate on D8.",
+          "references": [
+            "evidence.json#/positions/33",
+            "evidence.json#/moveAssessments/32"
+          ]
+        },
+        {
+          "claim": "The knight is the sole blocker on the mating route before the checking offer. Its forced capture clears the route.",
+          "references": [
+            "evidence.json#/positions/30",
+            "evidence.json#/positions/31",
+            "evidence.json#/positions/32"
+          ]
+        }
+      ],
+      "status": "replay-grounded"
+    },
+    {
+      "text": "The next time you see a sacrifice, look past the piece being taken. Ask what the capture opens up.",
+      "chapter": 5,
+      "factIds": [],
+      "claims": [],
+      "status": "editorial"
+    }
+  ],
+  "evidence": {
+    "forced-capture": {
+      "claim": "The checked side has exactly one legal move, and it captures the queen.",
+      "references": [
+        "evidence.json#/positions/31",
+        "evidence.json#/moveAssessments/31"
+      ]
+    },
+    "cleared-route": {
+      "claim": "The knight is the sole blocker on the mating route before the checking offer. Its forced capture clears the route.",
+      "references": [
+        "evidence.json#/positions/30",
+        "evidence.json#/positions/31",
+        "evidence.json#/positions/32"
+      ]
+    },
+    "mate": {
+      "claim": "The rook delivers checkmate on D8.",
+      "references": [
+        "evidence.json#/positions/33",
+        "evidence.json#/moveAssessments/32"
+      ]
+    },
+    "move-31": {
+      "claim": "Recorded move Qb8+ at ply 31",
+      "references": [
+        "evidence.json#/moveAssessments/30",
+        "evidence.json#/positions/31"
+      ]
+    },
+    "move-32": {
+      "claim": "Recorded move Nxb8 at ply 32",
+      "references": [
+        "evidence.json#/moveAssessments/31",
+        "evidence.json#/positions/32"
+      ]
+    },
+    "move-33": {
+      "claim": "Recorded move Rd8# at ply 33",
+      "references": [
+        "evidence.json#/moveAssessments/32",
+        "evidence.json#/positions/33"
+      ]
+    }
+  }
+}
