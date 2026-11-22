@@ -159,7 +159,7 @@ def produce(spec, provider, model_dir, voice, rate, *, project=None, stem="direc
             scene["settleCamera"] = shot["settleCamera"]
         scene.update(frames=duration, moveAt=move_at, moveFrames=MOVE_FRAMES if animated else 0,
                      highlights=shot.get("highlights", []), arrows=shot.get("arrows", []), transition=shot.get("transition","glide"),
-                     captions=caption_pages(cues, shot.get("chapter"))
+                     captions=caption_pages(cues, shot.get("chapter")))
         authored.append(scene)
         audit.append({"title": shot["title"], "start": start // SAMPLES, "frames": duration,
                       "spokenSamples": [len(samples) for samples in spoken], "moveAt": move_at,
