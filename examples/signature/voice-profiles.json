@@ -1,0 +1,43 @@
+{
+  "default": "af_heart",
+  "approval": "Human voice selection pending",
+  "pcm": {"sampleRate": 24000, "channels": 1, "format": "s16le"},
+  "normalization": {"integratedLufs": -18, "truePeakDbtp": -4, "loudnessRange": 9},
+  "segmentation": "Preserve whole benchmark commentary thoughts and their observation holds.",
+  "pronunciation": {"D8": "D eight", "B8": "B eight", "F5": "F five"},
+  "profiles": {
+    "af_heart": {
+      "provider": "kokoro",
+      "model": "Kokoro 82M v1.0 FP32",
+      "voice": "af_heart",
+      "source": "https://huggingface.co/hexgrad/Kokoro-82M",
+      "license": "Apache-2.0 (upstream model repository)",
+      "settings": {"language": "en-us", "rate": "Use the frozen benchmark rate for each thought"},
+      "reference": "https://chatgpt.com/library?file_id=libfile_ce9d9f2e151c8191bfe9a5b4aa1eee21&account_id=personal"
+    },
+    "alba": {
+      "provider": "pocket",
+      "model": "Pocket TTS 3.1.0 English",
+      "modelRevision": "d29db7978e464fb90cb3359ee0c69a273b9142cc",
+      "voice": "alba",
+      "source": "https://huggingface.co/kyutai/tts-voices#alba-mackenna",
+      "license": "CC BY 4.0",
+      "credit": "Kyutai Pocket TTS, Alba MacKenna (Casual voice performance), CC BY 4.0",
+      "settings": {"temperature": 0.3, "nativeTempo": true},
+      "reference": "alba-full-script.m4a",
+      "publication": "Synthetic narration. Use with attribution and human listening approval."
+    },
+    "anna": {
+      "provider": "pocket",
+      "model": "Pocket TTS 3.1.0 English",
+      "modelRevision": "d29db7978e464fb90cb3359ee0c69a273b9142cc",
+      "voice": "anna",
+      "source": "https://datashare.ed.ac.uk/handle/10283/3443",
+      "license": "CC BY 4.0",
+      "credit": "Kyutai Pocket TTS, CSTR VCTK Corpus v0.92 speaker p228, CC BY 4.0",
+      "settings": {"temperature": 0.3, "nativeTempo": true},
+      "reference": "anna-full-script.m4a",
+      "publication": "Synthetic narration. Use with attribution and human listening approval."
+    }
+  }
+}
