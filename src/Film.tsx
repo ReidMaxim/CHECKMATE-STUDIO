@@ -33,12 +33,13 @@ export function Film({project,assetBase,narration=true,flipped=false}:FilmProps)
   const returning = ease((local-returnStart)/48);
   const camera = {x:interpolate(returning,[0,1],[opening.x,settle.x]), y:interpolate(returning,[0,1],[opening.y,settle.y]),
     zoom:interpolate(returning,[0,1],[opening.zoom,settle.zoom])};
+  const chapters = scene.chapter ? (entries.at(-1)?.scene.chapter ?? entries.length) : entries.length;
   const caption = scene.captions.find(cue => cue.from <= local && local < cue.to);
   const status = move < 1 ? line[scene.ply-1] : state;
   return <AbsoluteFill className={project.presentation === 'director' ? 'film film-director' : 'film'}>
     <div className="film-grid"/>
     <div className="film-kicker"><i/>{project.series.toUpperCase()}</div>
-    <div className="film-title" key={index}>{scene.title}</div>
+    <div className="film-title" key={scene.chapter ?? index}>{scene.title}</div>
     <div className="film-board-label"><span>{scene.line ? 'VARIATION' : 'POSITION'}</span>
       <span>{status.move?.san ?? 'START'}{status.mate ? '  ·  CHECKMATE' : status.check ? '  ·  CHECK' : ''}</span></div>
     <div className="film-board">
@@ -52,7 +53,7 @@ export function Film({project,assetBase,narration=true,flipped=false}:FilmProps)
     <div className={`film-caption ${project.captionStyle === 'boxed' ? 'film-caption-boxed' : ''}`}
       style={project.presentation === 'director' && caption ? {opacity: Math.min(1,(local-caption.from+1)/3,(caption.to-local)/3)} : undefined}>
       {caption && <span>{caption.text}</span>}</div>
-    <div className="film-footer"><span>CHECKMATE<span className="film-gold">//</span>STUDIO</span><span>{String(index+1).padStart(2,'0')} / {String(entries.length).padStart(2,'0')}</span></div>
+    <div className="film-footer"><span>CHECKMATE<span className="film-gold">//</span>STUDIO</span><span>{String(scene.chapter ?? index+1).padStart(2,'0')} / {String(chapters).padStart(2,'0')}</span></div>
     {project.audio.filter(track => narration || track.kind!=='narration').map((track, i) =>
       <Sequence key={i} from={track.start} durationInFrames={(track.end ?? entries.at(-1)!.end)-track.start} layout="none">
         <Audio src={assetBase+track.asset} volume={track.volume}/>

@@ -1,7 +1,7 @@
 name: Produce unseen-game documentary
 on:
   push:
-    branches: [mission-004-unseen-game]
+    branches: [mission-004-unseen-game, mission-004-1-human-commentary]
   workflow_dispatch:
     inputs:
       pgn_path:
@@ -84,6 +84,12 @@ jobs:
           args=()
           if [ -n "$CANDIDATE" ]; then args+=(--candidate "$CANDIDATE"); fi
           if [ -n "$TREATMENT" ] && [ "$TREATMENT" != automatic ]; then args+=(--treatment "$TREATMENT"); fi
+          if [ "${GITHUB_REF_NAME}" = mission-004-1-human-commentary ]; then
+            args+=(--edition commentary)
+            if [ "$PRODUCTION" = opera ] && [ -z "$CANDIDATE" ]; then args+=(--candidate ply-33); fi
+          else
+            args+=(--edition replay)
+          fi
           python scripts/unseen.py "${PGN_PATH:-examples/unseen/$PRODUCTION.pgn}" --output out/production --mode "$MODE" "${args[@]}"
       - run: npm run build
       - name: Render with pinned Chromium
