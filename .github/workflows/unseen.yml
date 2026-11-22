@@ -1,7 +1,7 @@
 name: Produce unseen-game documentary
 on:
   push:
-    branches: [mission-004-unseen-game, mission-004-1-human-commentary, mission-004-2-producers-room]
+    branches: [mission-004-unseen-game, mission-004-1-human-commentary, mission-004-2-producers-room, mission-004-3-commentators-voice]
   workflow_dispatch:
     inputs:
       producer_stage:
@@ -44,7 +44,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        production: ${{ fromJSON(github.ref_name == 'mission-004-2-producers-room' && '["producers-room"]' || (inputs.pgn_path || inputs.pgn_text) && '["supplied"]' || '["opera","rook-ending"]') }}
+        production: ${{ fromJSON((github.ref_name == 'mission-004-2-producers-room' || github.ref_name == 'mission-004-3-commentators-voice') && '["producers-room"]' || (inputs.pgn_path || inputs.pgn_text) && '["supplied"]' || '["opera","rook-ending"]') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
@@ -100,7 +100,18 @@ jobs:
           if [ "$PRODUCTION" = producers-room ]; then
             scores=(examples/unseen/opera.pgn examples/chess/deep-blue.pgn examples/unseen/lasker-bauer.pgn)
             if [ -n "$PGN_PATH" ]; then scores=("$PGN_PATH"); fi
-            python scripts/producer.py "${scores[@]}" --output out/production --mode "$MODE" \
+            style=()
+            if [ "$GITHUB_REF_NAME" = mission-004-3-commentators-voice ]; then
+              style=(--commentator)
+              if [ "$PRODUCER_STAGE" = full ] && [ -z "$PGN_PATH" ]; then
+                python scripts/producer.py examples/unseen/rook-ending.pgn --stage regression --mode offline \
+                  --commentator --pick rook-ending:ply-66 --output out/production/second-game
+                test -s out/production/second-game/storyboard.json
+                npm run validate
+                rm projects/unseen-documentary.json
+              fi
+            fi
+            python scripts/producer.py "${scores[@]}" "${style[@]}" --output out/production --mode "$MODE" \
               --stage "$PRODUCER_STAGE" --pick "$PRODUCER_PICK" --voice "$NARRATION_VOICE"
             exit
           fi

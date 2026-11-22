@@ -13,6 +13,7 @@ import chess
 from chess_intelligence import ROOT, Stockfish, analyze, game_from, validate
 from commentary_pass import build, direct_drafts, forced_clearance, piece_name
 from compile import compile_project
+from commentator import VOICE_GUIDE, edit, perform, repetition
 from directors_cut import produce, write_wave, RATE
 from story_provider import request_plan
 from storyteller import spoken
@@ -115,17 +116,22 @@ def check_lines(payload, slots):
     return beats
 
 
-def develop(drafts, evidence, editorial, live, request=request_plan):
+def develop(drafts, evidence, editorial, live, request=request_plan, *, commentary=None):
     slots = [{"shot": i, "purpose": shot["title"], "line": shot["line"], "allowed": shot["refs"]}
              for i, shot in enumerate(drafts) if shot["text"]]
     original = [{"shot": item["shot"], "text": drafts[item["shot"]]["text"], "facts": item["allowed"]}
                 for item in slots]
     if live:
         brief = {"slots": slots, "evidence": evidence, "producer": editorial}
-        payload, author = request(brief, instructions=DRAFT_INSTRUCTIONS, max_tokens=1800)
+        if commentary:
+            brief.update(voiceGuide=VOICE_GUIDE, opening=commentary["hooks"], targetAudience="Curious casual chess players",
+                         visualPlan=[{key: shot[key] for key in ("ply", "line", "title", "animate")} for shot in drafts])
+        guide = " " + VOICE_GUIDE if commentary else ""
+        payload, author = request(brief, instructions=DRAFT_INSTRUCTIONS + guide, max_tokens=1800)
         original = check_lines(payload, slots)
-        review, editor = request({**brief, "draft": original}, max_tokens=2100,
-            instructions=DRAFT_INSTRUCTIONS + " Act as editor. Add a specific nonempty 'notes' string array covering "
+        review, editor = request({**brief, "draft": original, "repetition": repetition([
+                sentence["text"] for beat in original for sentence in beat["sentences"]])}, max_tokens=2100,
+            instructions=DRAFT_INSTRUCTIONS + guide + " Act as editor. Add a specific nonempty 'notes' string array covering "
                          "hook, naturalness, continuity, repetition, jargon, density, teaching, emotional progression, ending "
                          "and visual feasibility. Return beats only if a concrete improvement is justified, else beats:null.")
         if (not isinstance(review, dict) or "beats" not in review or not isinstance(review.get("notes"), list)
@@ -144,6 +150,8 @@ def develop(drafts, evidence, editorial, live, request=request_plan):
             drafts[beat["shot"]]["text"] = " ".join(sentence["text"] for sentence in beat["sentences"])
         return dict(mode="hosted-original", original=original, revised=revised, notes=review["notes"],
                     changed=original != revised, revisionPasses=1, author=author, editor=editor, reviewer=reviewer)
+    if commentary:
+        return commentary
 
     revised = deepcopy(original)
     notes = []
@@ -211,10 +219,13 @@ def run(args):
             options.append(result)
 
     winner = select(options, args.pick or None)
+    if not winner and args.stage == "regression" and args.commentator and args.pick:
+        winner = next((item for item in options if item["key"] == args.pick and item["decision"] == "revise"
+                       and item["angle"] == "decision-contrast"), None)
     write_json(args.output / "producer-report.json", {"weights": WEIGHTS, "candidates": options,
               "selected": winner, "override": args.pick, "reason": "Manual selection among produce decisions" if args.pick
               else "Highest weighted score among produce decisions with a supported narrative angle",
-              "outcome": "produce" if winner else "no-production"})
+              "outcome": ("regression-only" if winner["decision"] == "revise" else "produce") if winner else "no-production"})
     if args.stage == "producer" or not winner:
         print("Editorial selection:", winner["key"] if winner else "No story cleared the producer gate")
         return
@@ -225,7 +236,25 @@ def run(args):
     drafts, evidence, variation = build(record, selected)
     live = args.stage == "script" or (args.stage == "full" and args.mode == "auto"
            and bool(os.environ.get("OPENROUTER_API_KEY") and os.environ.get("STORY_MODEL"))) or (args.mode == "live" and args.stage != "regression")
-    editorial = develop(drafts, evidence, winner, live)
+    commentary = None
+    if args.commentator:
+        pivot = selected["deep"]["ply"]
+        motif = forced_clearance(list(game.mainline()), pivot)
+        context = None
+        if motif:
+            context = dict(blockerName=piece_name(motif["responder"]), attackerName=piece_name(motif["attacker"]),
+                           offeredName=piece_name(motif["offered"]), landing=chess.square_name(motif["mate"].to_square).upper(),
+                           color=selected["side"])
+        else:
+            drafts = [shot for shot in drafts if shot["text"]]
+            drafts[0]["ply"] = pivot - 1
+        squares = tuple(item["moves"][0]["uci"][2:4].upper() for item in
+                        (selected["deep"]["played"], selected["deep"]["best"]))
+        commentary = edit(drafts, evidence, winner["angle"], context, squares)
+    editorial = develop(drafts, evidence, winner, live, commentary=commentary)
+    if commentary and live:
+        editorial["hooks"] = commentary["hooks"]
+        editorial["actualOpening"] = drafts[0]["text"]
     write_json(args.output / "editorial-report.json", editorial)
     scenes, claims, rates = direct_drafts(record, selected, drafts, evidence, live)
     model = ROOT / ".cache/kokoro"
@@ -235,7 +264,8 @@ def run(args):
         "creative": {"approval": "human-review-pending", "hook": drafts[0]["text"],
                      "coherence": "Contrast comparable lines or explain the replay-proven mechanism",
                      "accessibility": winner["complexity"], "editorNotes": editorial["notes"],
-                     "naturalness": "Audition both deliveries at comparable loudness", "ending": drafts[-1]["text"],
+                     "naturalness": "Review complete thoughts and observation holds" if args.commentator else
+                     "Audition both deliveries at comparable loudness", "ending": drafts[-1]["text"],
                      "visualClarity": "Keep the position readable while emphasizing the decisive move",
                      "pacing": "Observation holds around the reveal, measured against fresh speech"},
         "mode": editorial["mode"], "selected": selected, "evidence": evidence,
@@ -247,25 +277,39 @@ def run(args):
     write_json(args.output / "quality-report.json", quality)
     if args.stage == "script":
         return
-    if args.stage in {"auditions", "full"}:
+    if args.stage == "auditions" or (args.stage == "full" and not args.commentator):
         write_json(args.output / "auditions.json", auditions(drafts[0]["text"], args.output, model))
     if args.stage == "auditions":
         return
 
-    # Separate setup, anticipation and payoff with punctuation and observation time.
+    if args.commentator:
+        rates, quality["voiceDirection"] = perform(scenes)
     for scene in scenes:
-        if scene["preset"] == "critical" and "visualMoveAt" in scene:
+        if not args.commentator and scene["preset"] == "critical" and "visualMoveAt" in scene:
             scene["visualMoveAt"] += .25
         if scene["preset"] == "reveal":
             scene["settleCamera"] = {"focus": None, "zoom": 1}
-    project = project_for(record, selected, {"title": "What the Capture Opens" if winner["angle"] == "forced-clearance"
-                                             else "The Decision on the Board"}, game.headers.get("Source"), variation)
+    title = "What the Capture Opens" if (
+        winner["angle"] == "forced-clearance") else "The Decision on the Board"
+    if args.commentator and winner["angle"] == "forced-clearance":
+        title = f"The Square the {context['blockerName'].title()} Left"
+    project = project_for(record, selected, {"title": title}, game.headers.get("Source"), variation)
     studio = VoiceStudio(model, args.voice, rates, model_file="kokoro-v1.0.onnx")
     produce({"scenes": scenes}, "kokoro", model, args.voice, .96,
             project=project, stem="unseen", synthesis=studio, model_label="Kokoro 82M v1.0 FP32")
     storyboard = compile_project(json.loads((ROOT / "projects/unseen-documentary.json").read_text()))
     timing = json.loads((ROOT / "out/unseen-timing.json").read_text())
     quality["technical"].update(storyboard=True, audioSignal=True)
+    if args.commentator:
+        last_end = None
+        quality["measuredPauses"] = []
+        for scene in timing["scenes"]:
+            for phrase, samples in zip(scene["phrases"], scene["spokenSamples"], strict=True):
+                start = (scene["start"] + phrase["from"]) / timing["fps"]
+                if last_end is not None:
+                    quality["measuredPauses"].append({"beforeChapter": scene["chapter"],
+                                                       "seconds": round(start - last_end, 3)})
+                last_end = start + samples / RATE
     quality.update(storyboard="storyboard.json", seconds=timing["frames"] / timing["fps"], voice=args.voice,
                    proposedSeconds=winner["targetSeconds"], runtimeReason=winner["runtimeReason"],
                    audio={"signal": studio.audit, "timing": timing})
@@ -282,6 +326,7 @@ def main():
     parser.add_argument("--depth", type=int, choices=range(11, 19), default=16)
     parser.add_argument("--stage", choices=("producer", "script", "auditions", "full", "regression"), default="full")
     parser.add_argument("--mode", choices=("auto", "offline", "live"), default="auto")
+    parser.add_argument("--commentator", action="store_true")
     parser.add_argument("--voice", choices=VOICES, default="af_heart")
     run(parser.parse_args())
 
