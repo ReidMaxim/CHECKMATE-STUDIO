@@ -9,7 +9,7 @@ class CastingTests(unittest.TestCase):
             {"expected":"knight", "recognized":"night"}, {"expected":"sacrifice", "recognized":""}
         ]}), 1)
 
-    def test_shortlist_keeps_source_variety_and_excludes_references(self):
+    def test_shortlist_ranks_candidates_and_excludes_references(self):
         candidates = {name: {"score": score, "seconds": 18}
                       for name, score in [("alba",0), ("marius",1), ("javert",2), ("george",3)]}
-        self.assertEqual(shortlist(candidates), ["marius", "george"])
+        self.assertEqual(shortlist(candidates), ["marius", "javert"])

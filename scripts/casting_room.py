@@ -4,10 +4,11 @@ from array import array
 import json
 from pathlib import Path
 import shutil
+import subprocess
 
 from compile import compile_project
 from directors_cut import FPS, RATE, ROOT, frames, produce, write_wave
-from signature_voice import FIXTURE, align, audio_preview, normalize, recognize
+from signature_voice import FIXTURE, align, audio_preview, recognize
 from storyteller import spoken
 from tts_providers import CASTING_PROFILES, KokoroNarrator, PocketNarrator
 
@@ -27,24 +28,34 @@ def score(review):
 
 
 def shortlist(candidates):
-    """Use reproducible transcript screening and include both source pools."""
+    """Advance the two strongest technical candidates for listener review."""
     def rank(name):
         row = candidates[name]
         return row["score"], abs(row["seconds"] - 18), name
     names = [name for name in CASTING_PROFILES if "score" in candidates.get(name, {})]
     if len(names) < 2:
         raise ValueError("Fewer than two usable casting candidates")
-    ordered = sorted(names, key=rank)
-    first = ordered[0]
-    second = next((name for name in ordered[1:]
-                   if CASTING_PROFILES[name]["license"] != CASTING_PROFILES[first]["license"]), ordered[1])
-    return [first, second]
+    return sorted(names, key=rank)[:2]
+
+
+def normalize_audition(source, target):
+    settings = "loudnorm=I=-18:TP=-4:LRA=9"
+    probe = subprocess.run(["ffmpeg", "-hide_banner", "-i", str(source), "-af",
+                            settings + ":print_format=json", "-f", "null", "-"],
+                           capture_output=True, text=True, check=True).stderr
+    levels = json.loads(probe[probe.rindex("{"):probe.rindex("}") + 1])
+    effect = settings + ":linear=true" + "".join(
+        f":measured_{target}={levels['input_' + key]}"
+        for target, key in (("I", "i"), ("LRA", "lra"), ("TP", "tp"), ("thresh", "thresh")))
+    effect += f":offset={levels['target_offset']}"
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(source), "-af", effect,
+                    "-ar", str(RATE), "-ac", "1", str(target)], check=True)
 
 
 def export_dry(pcm, stem, scratch, output):
     raw, normalized = (scratch / f"{stem}-{kind}.wav" for kind in ("raw", "normalized"))
     write_wave(raw, pcm)
-    normalize(raw, normalized)
+    normalize_audition(raw, normalized)
     target = output / f"{stem}.m4a"
     audio_preview(normalized, target)
     return target
@@ -90,7 +101,7 @@ def run(models, output):
     report = {"reference": fixture["reference"], "excerpt": " ".join(words), "terms": spoken(TERMS),
               "normalization": "−18 LUFS target, −4 dBTP limit; native Pocket tempo",
               "screening": "Transcript discrepancy count with homophones ignored and runtime as tie-breaker. "
-                           "The shortlist includes both source pools. Listener approval pending.",
+                           "The two lowest counts advance. Listener approval pending.",
               "humanReview": ["Naturalness", "Expressiveness", "Consistency", "Distinctive character", "Pronunciation"],
               "candidates": {}}
     takes = {}
