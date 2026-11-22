@@ -166,6 +166,10 @@ def write_live(scenes, evidence, request=request_plan):
 def direct_commentary(record, selected, live):
     drafts, evidence, variation = build(record, selected)
     provider = write_live(drafts, evidence) if live else {"mode": "offline-composed"}
+    return direct_drafts(record, selected, drafts, evidence, live) + (variation, provider)
+
+
+def direct_drafts(record, selected, drafts, evidence, live):
     rates_by_preset = {"establishing": .96, "critical": .95, "threat": .98,
                       "variation": .97, "reveal": .91, "final": .94}
     scenes, ledger, rates = [], [], {}
@@ -194,4 +198,4 @@ def direct_commentary(record, selected, live):
                            "claims": [evidence[key] for key in refs],
                            "status": ("model-reviewed" if live else "replay-grounded") if refs else "editorial"})
         scenes.append(scene)
-    return scenes, ledger, rates, variation, provider
+    return scenes, ledger, rates
