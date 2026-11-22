@@ -18,3 +18,8 @@ get alba.safetensors e4a323e8e771f14fd669428d83e7af6d83b4d6d0f0e282c30122f04824f
 get anna.safetensors 87e1922e9d1bfb27728ae4f1ea89bc3174e17a9f819ce0a728cfbea19517d9c7 "$pocket/embeddings/anna.safetensors?download=true"
 get vosk.zip 30f26242c4eb449f948e42cb302dd7a686cb29a3423a8367f99ff41780942498 "https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip"
 unzip -oq "$root/vosk.zip" -d "$root"
+if [[ "${2:-}" == "--casting" ]]; then
+  while IFS=$'\t' read -r voice hash; do
+    get "$voice.safetensors" "$hash" "$pocket/embeddings/$voice.safetensors?download=true"
+  done < <(python -c 'import json; from pathlib import Path; [print(name, item["sha256"], sep="\t") for name, item in json.loads(Path("examples/signature/casting-profiles.json").read_text()).items()]')
+fi

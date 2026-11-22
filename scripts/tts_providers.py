@@ -4,13 +4,15 @@ from dataclasses import dataclass
 from importlib.metadata import version
 from importlib.resources import files
 from typing import Protocol
+import json
 import time
 
-from directors_cut import RATE
+from directors_cut import RATE, ROOT
 from voice_studio import VoiceStudio, signal
 
 MODEL_REVISION = "d29db7978e464fb90cb3359ee0c69a273b9142cc"
 POCKET_VOICES = ("alba", "anna")
+CASTING_PROFILES = json.loads((ROOT / "examples/signature/casting-profiles.json").read_text())
 
 
 @dataclass
@@ -50,7 +52,7 @@ class KokoroNarrator:
 class PocketNarrator:
     """Use only official precomputed voices with the corresponding pinned English model."""
     def __init__(self, voice, directory):
-        if voice not in POCKET_VOICES:
+        if voice not in (*POCKET_VOICES, *CASTING_PROFILES):
             raise ValueError("Pocket review profiles are limited to the listed upstream voices")
         import torch
         import yaml

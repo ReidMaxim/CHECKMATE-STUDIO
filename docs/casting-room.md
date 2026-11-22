@@ -1,0 +1,11 @@
+# The Casting Room
+
+The casting workflow keeps the original PGN, narration, shot directions, captions and pause intentions from *What the Capture Opens*. Only speech and the timing measured from it vary. The dry audition uses the same three consecutive thoughts about the queen offer, forced capture and mate. Native tempo can put a candidate outside the approximate 15–20 second listening window. A separate short read checks the chess vocabulary.
+
+The published English Pocket TTS profiles Marius and Javert come from the Unmute voice donation project. Kyutai identifies these reference assets as CC0 and its donation terms explicitly include synthetic speech and commercial reuse. Charles, George, Paul and Michael are published Kyutai profiles from the CSTR VCTK Corpus (v0.92) under CC BY 4.0. Credit Kyutai Pocket TTS and the CSTR VCTK Corpus by Veaux, Yamagishi and MacDonald when using a VCTK-based cut. The English checkpoint is CC BY 4.0 across all six and requires model attribution. Each exact profile source and state checksum is in the casting manifest.
+
+[Kyutai voice catalog and licenses](https://huggingface.co/kyutai/tts-voices) · [Donation terms](https://kyutai.org/next/legal/Terms%20of%20Use%20-%20Unmute%20Voice%20Donation%20Project%20v1.pdf) · [VCTK corpus](https://datashare.ed.ac.uk/handle/10283/3443) · [Pinned Pocket checkpoint](https://huggingface.co/kyutai/pocket-tts-without-voice-cloning/tree/d29db7978e464fb90cb3359ee0c69a273b9142cc)
+
+Peter Yearsley, Stuart Bell and Bill Boerst were considered. The catalog traces them to Voice-Zero and LibriVox. The source recordings are publicly licensed, while specific permission from the named readers for a recurring synthetic channel narrator could not be verified. The casting bench instead uses documented donations and published pseudonymous VCTK profiles. The pipeline takes no custom reference recordings.
+
+ASR highlights words and terms for manual review. The film shortlist takes the two lowest transcript discrepancy counts, with duration as a tie-breaker. The report leaves naturalness, personality, expressiveness and consistency to the listener. Kokoro af_heart and Pocket Alba are the reference controls. The existing production default is af_heart.

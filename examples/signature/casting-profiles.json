@@ -1,0 +1,8 @@
+{
+  "marius": {"asset": "voice-donations/Selfie.wav", "license": "CC0-1.0", "sha256": "6e561ad98e5c36b4fae278e9a8540d4b86069c46446028efd04e9d58fa25d3c9"},
+  "javert": {"asset": "voice-donations/Butter.wav", "license": "CC0-1.0", "sha256": "d476bdc0b43b42192f4934ea080553851d1e5897d9eefe965e7a30b69b7d10a3"},
+  "charles": {"asset": "vctk/p254_023_enhanced.wav", "license": "CC-BY-4.0", "sha256": "0681cdd3decb917df78f7ebeb42f01f2784d7490911591d8f93af906ab3770e5"},
+  "george": {"asset": "vctk/p315_023_enhanced.wav", "license": "CC-BY-4.0", "sha256": "9a78363b01ee91dcfd431b500e84350ef6f8e6e0639d5a34f1441cd6129d4dc7"},
+  "paul": {"asset": "vctk/p259_023_enhanced.wav", "license": "CC-BY-4.0", "sha256": "8c227d54297a5be31ecae4fe9067c4f7fba49606c241cfe70279eb9cb67b9e46"},
+  "michael": {"asset": "vctk/p360_023_enhanced.wav", "license": "CC-BY-4.0", "sha256": "e23d5ae79a6c0e96f13bf60267d88a99c893bda9e6d559de4e78135060935bd7"}
+}
