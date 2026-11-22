@@ -1,9 +1,22 @@
 name: Produce unseen-game documentary
 on:
   push:
-    branches: [mission-004-unseen-game, mission-004-1-human-commentary]
+    branches: [mission-004-unseen-game, mission-004-1-human-commentary, mission-004-2-producers-room]
   workflow_dispatch:
     inputs:
+      producer_stage:
+        description: Producer's Room stage on the Producer branch
+        type: choice
+        options: [full, producer, script, auditions, regression]
+        default: full
+      producer_pick:
+        description: Optional producer candidate, e.g. opera:ply-33
+        type: string
+      narration_voice:
+        description: Provisional render voice
+        type: choice
+        options: [af_heart, am_michael]
+        default: af_heart
       pgn_path:
         description: Repository-relative PGN path (blank runs both demonstrations)
         type: string
@@ -31,7 +44,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        production: ${{ fromJSON((inputs.pgn_path || inputs.pgn_text) && '["supplied"]' || '["opera","rook-ending"]') }}
+        production: ${{ fromJSON(github.ref_name == 'mission-004-2-producers-room' && '["producers-room"]' || (inputs.pgn_path || inputs.pgn_text) && '["supplied"]' || '["opera","rook-ending"]') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
@@ -76,10 +89,20 @@ jobs:
           PRODUCTION: ${{ matrix.production }}
           CANDIDATE: ${{ inputs.candidate }}
           TREATMENT: ${{ inputs.treatment }}
+          PRODUCER_STAGE: ${{ inputs.producer_stage || 'full' }}
+          PRODUCER_PICK: ${{ inputs.producer_pick }}
+          NARRATION_VOICE: ${{ inputs.narration_voice || 'af_heart' }}
         run: |
           if [ -n "$PGN_TEXT" ]; then
             PGN_PATH="$RUNNER_TEMP/input.pgn"
             printf '%s\n' "$PGN_TEXT" > "$PGN_PATH"
+          fi
+          if [ "$PRODUCTION" = producers-room ]; then
+            scores=(examples/unseen/opera.pgn examples/chess/deep-blue.pgn examples/unseen/lasker-bauer.pgn)
+            if [ -n "$PGN_PATH" ]; then scores=("$PGN_PATH"); fi
+            python scripts/producer.py "${scores[@]}" --output out/production --mode "$MODE" \
+              --stage "$PRODUCER_STAGE" --pick "$PRODUCER_PICK" --voice "$NARRATION_VOICE"
+            exit
           fi
           args=()
           if [ -n "$CANDIDATE" ]; then args+=(--candidate "$CANDIDATE"); fi
@@ -92,15 +115,33 @@ jobs:
           fi
           python scripts/unseen.py "${PGN_PATH:-examples/unseen/$PRODUCTION.pgn}" --output out/production --mode "$MODE" "${args[@]}"
       - run: npm run build
+        if: matrix.production != 'producers-room' || (inputs.producer_stage || 'full') == 'full'
       - name: Render with pinned Chromium
-        if: matrix.production != 'rook-ending'
+        if: matrix.production != 'rook-ending' && (matrix.production != 'producers-room' || (inputs.producer_stage || 'full') == 'full')
         run: |
+          if [ ! -s projects/unseen-documentary.json ]; then
+            echo "A story was not selected for rendering"
+            exit 0
+          fi
           npm install --prefix "$RUNNER_TEMP/story-browser" --no-audit --no-fund @sparticuz/chromium@141.0.0
           export CHROMIUM_BIN=$(node --input-type=module -e 'const c=(await import(process.env.RUNNER_TEMP+"/story-browser/node_modules/@sparticuz/chromium/build/esm/index.js")).default; process.stdout.write(await c.executablePath())')
           npm run render -- unseen-documentary
           python scripts/verify-video.py out/unseen-documentary.mp4 projects/unseen-documentary.json
           cp out/unseen-documentary.mp4 out/production/
-          python -c 'import json; from pathlib import Path; p=Path("out/production/manifest.json"); m=json.loads(p.read_text()); m["validation"]["mp4Decode"]=True; p.write_text(json.dumps(m,ensure_ascii=False,indent=2)+"\n")'
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          quality = Path("out/production/quality-report.json")
+          if quality.exists():
+              report = json.loads(quality.read_text())
+              report["technical"].update(mp4Decode=True, audioDecode=True, videoDimensions=True,
+                                         captionBoundaries=True, narrationTiming=True, requiredAssets=True)
+          else:
+              quality = Path("out/production/manifest.json")
+              report = json.loads(quality.read_text())
+              report["validation"]["mp4Decode"] = True
+          quality.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
+          PY
       - uses: actions/upload-artifact@v5
         if: always()
         with:
