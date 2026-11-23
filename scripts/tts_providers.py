@@ -51,7 +51,10 @@ class KokoroNarrator:
 
 class PocketNarrator:
     """Use only official precomputed voices with the corresponding pinned English model."""
-    def __init__(self, voice, directory):
+    def __init__(self, voice, directory, *, temperature=.3, seeds=(42, 43)):
+        if not 0 < temperature <= 1 or not 1 <= len(seeds) <= 2:
+            raise ValueError("Expected positive temperature and one or two seeds")
+        self.temperature, self.seeds = temperature, tuple(seeds)
         if voice not in (*POCKET_VOICES, *CASTING_PROFILES):
             raise ValueError("Pocket review profiles are limited to the listed upstream voices")
         import torch
@@ -68,23 +71,26 @@ class PocketNarrator:
         config["flow_lm"]["lookup_table"]["tokenizer_path"] = str((directory / "tokenizer.model").resolve())
         config_file = directory / "pocket-english-pinned.yaml"
         config_file.write_text(yaml.safe_dump(config))
-        self.model = TTSModel.load_model(config=config_file, temp=.3)
+        self.model = TTSModel.load_model(config=config_file, temp=temperature)
         self.state = self.model.get_state_for_audio_prompt(
             directory / f"{voice}.safetensors")
 
-    def synthesize(self, text):
+    def synthesize(self, text, *, capture=None):
         started = time.monotonic()
         errors = []
-        for seed in (42, 43):
+        for seed in self.seeds:
             try:
                 self.torch.manual_seed(seed)
                 samples = self.model.generate_audio(self.state, text)
-                pcm, quality = signal(samples.detach().cpu().numpy(), self.model.sample_rate)
+                raw = samples.detach().cpu().numpy()
+                pcm, quality = signal(raw, self.model.sample_rate)
+                if capture is not None:
+                    capture(raw, self.model.sample_rate)
                 if self.model.sample_rate != RATE:
                     raise ValueError("Unexpected Pocket native sample rate")
                 quality["attempts"] = errors
                 return Speech(pcm, self.model.sample_rate, "pocket", self.model_version, self.voice,
-                              {"temperature": .3, "seed": seed, "nativeRate": True},
+                              {"temperature": self.temperature, "seed": seed, "nativeRate": True},
                               quality, time.monotonic() - started)
             except (ValueError, RuntimeError) as error:
                 errors.append(str(error))
