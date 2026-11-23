@@ -19,3 +19,5 @@
 .film-director .film-caption{top:1443px;font-size:53px;line-height:1.13}
 .film-caption-boxed span{display:inline-block;box-sizing:border-box;max-width:100%;padding:15px 22px 17px;background:#0b120fe8;border-left:4px solid #cfa86f;border-radius:0 9px 9px 0}
 .film-director .film-eval{background:#0b120f;padding:6px 12px;line-height:1.25}
+.film-channel{position:absolute;top:159px;left:92px;font-weight:700;font-size:22px;letter-spacing:.19em}
+.film-channel i{display:block;width:116px;height:2px;margin-top:8px;background:currentColor;transform-origin:left}

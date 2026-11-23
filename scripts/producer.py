@@ -32,7 +32,7 @@ DRAFT_INSTRUCTIONS = (
 )
 
 
-def evaluate(entry, nodes):
+def evaluate(entry, nodes, *, broadcast=False):
     pivot = entry["deep"]["ply"]
     node = nodes[pivot - 1]
     before, after = node.parent.board(), node.board()
@@ -55,6 +55,12 @@ def evaluate(entry, nodes):
         reasons = ["A verified counterfactual makes the decision teachable",
                    "The viewer must compare two lines from the same position"]
         seconds, complexity = 43 + differences, "medium"
+        if (broadcast and len(before.piece_map()) <= 16 and not before.queens and variation["uci"][:2] == node.move.uci()[:2]
+                and pivot < len(nodes) and after.is_capture(nodes[pivot].move)
+                and nodes[pivot].move.to_square == node.move.to_square):
+            scores[3] += 1
+            scores[4] += 1
+            reasons.append("Same piece can take two routes, with an immediate recorded capture to illustrate the difference")
     elif after.is_checkmate():
         angle = "unexplained-mate"
         hook = "Which square actually matters for mate?"
@@ -206,7 +212,7 @@ def run(args):
         write_json(args.output / f"{path.stem}-evidence.json", record)
         nodes = list(game.mainline())
         for entry in candidates:
-            result = evaluate(entry, nodes)
+            result = evaluate(entry, nodes, broadcast=args.broadcast)
             result.update(game=path.stem, key=f"{path.stem}:{result['id']}")
             options.append(result)
 
@@ -223,9 +229,15 @@ def run(args):
     selected = entries[winner["id"]]
     selected["side"] = record["moveAssessments"][selected["deep"]["ply"]-1]["player"]
     drafts, evidence, variation = build(record, selected)
+    if args.broadcast:
+        from broadcast import enrich
+        enrich(game, selected, drafts, evidence)
     live = args.stage == "script" or (args.stage == "full" and args.mode == "auto"
            and bool(os.environ.get("OPENROUTER_API_KEY") and os.environ.get("STORY_MODEL"))) or (args.mode == "live" and args.stage != "regression")
     editorial = develop(drafts, evidence, winner, live)
+    if args.broadcast and not live and winner["angle"] == "decision-contrast":
+        from broadcast import opening_question
+        opening_question(drafts, editorial, game, selected)
     write_json(args.output / "editorial-report.json", editorial)
     scenes, claims, rates = direct_drafts(record, selected, drafts, evidence, live)
     model = ROOT / ".cache/kokoro"
@@ -247,7 +259,7 @@ def run(args):
     write_json(args.output / "quality-report.json", quality)
     if args.stage == "script":
         return
-    if args.stage in {"auditions", "full"}:
+    if args.stage in {"auditions", "full"} and not args.broadcast:
         write_json(args.output / "auditions.json", auditions(drafts[0]["text"], args.output, model))
     if args.stage == "auditions":
         return
@@ -260,15 +272,31 @@ def run(args):
             scene["settleCamera"] = {"focus": None, "zoom": 1}
     project = project_for(record, selected, {"title": "What the Capture Opens" if winner["angle"] == "forced-clearance"
                                              else "The Decision on the Board"}, game.headers.get("Source"), variation)
-    studio = VoiceStudio(model, args.voice, rates, model_file="kokoro-v1.0.onnx")
-    produce({"scenes": scenes}, "kokoro", model, args.voice, .96,
-            project=project, stem="unseen", synthesis=studio, model_label="Kokoro 82M v1.0 FP32")
+    if args.broadcast:
+        from broadcast import direct as direct_broadcast, label_narration, synthesize
+        identity = direct_broadcast(args.output, game, selected, winner, project, live)
+        texts = dict.fromkeys(phrase[2] for scene in scenes for phrase in scene["phrases"])
+        clips, fallback = synthesize(identity, args.tts_models, rates, texts)
+        sample = next(iter(clips.values()))
+        voice = sample.voice
+        label_narration(args.output, sample)
+        produce({"scenes": scenes}, sample.provider, model, voice, .96,
+                project=project, stem="unseen", synthesis=lambda text: clips[text].pcm, model_label=sample.model)
+        audit = [clip.audit() for clip in clips.values()]
+        write_json(args.output / "tts-manifest.json", {"profile": identity["narrator"], "fallbackReason": fallback,
+                   "actualVoice": voice, "model": sample.model, "provider": sample.provider, "phrases": audit})
+    else:
+        voice = args.voice
+        studio = VoiceStudio(model, voice, rates, model_file="kokoro-v1.0.onnx")
+        produce({"scenes": scenes}, "kokoro", model, voice, .96,
+                project=project, stem="unseen", synthesis=studio, model_label="Kokoro 82M v1.0 FP32")
+        audit = studio.audit
     storyboard = compile_project(json.loads((ROOT / "projects/unseen-documentary.json").read_text()))
     timing = json.loads((ROOT / "out/unseen-timing.json").read_text())
     quality["technical"].update(storyboard=True, audioSignal=True)
-    quality.update(storyboard="storyboard.json", seconds=timing["frames"] / timing["fps"], voice=args.voice,
+    quality.update(storyboard="storyboard.json", seconds=timing["frames"] / timing["fps"], voice=voice,
                    proposedSeconds=winner["targetSeconds"], runtimeReason=winner["runtimeReason"],
-                   audio={"signal": studio.audit, "timing": timing})
+                   audio={"signal": audit, "timing": timing})
     write_json(args.output / "storyboard.json", storyboard)
     write_json(args.output / "quality-report.json", quality)
     print(f"{editorial['mode']}: {winner['key']}, {quality['seconds']:.2f}s")
@@ -282,6 +310,8 @@ def main():
     parser.add_argument("--depth", type=int, choices=range(11, 19), default=16)
     parser.add_argument("--stage", choices=("producer", "script", "auditions", "full", "regression"), default="full")
     parser.add_argument("--mode", choices=("auto", "offline", "live"), default="auto")
+    parser.add_argument("--broadcast", action="store_true")
+    parser.add_argument("--tts-models", type=Path, default=ROOT / ".cache/signature-models")
     parser.add_argument("--voice", choices=VOICES, default="af_heart")
     run(parser.parse_args())
 

@@ -39,6 +39,12 @@ export function Film({project,assetBase,narration=true,flipped=false}:FilmProps)
   return <AbsoluteFill className={project.presentation === 'director' ? 'film film-director' : 'film'}>
     <div className="film-grid"/>
     <div className="film-kicker"><i/>{project.series.toUpperCase()}</div>
+    {index === 0 && project.branding && project.branding.opening !== 'none' && (
+      <div className="film-channel" style={{color:project.branding.accent,fontFamily:project.branding.typography}}>
+        {project.branding.wordmark}
+        {project.branding.opening === 'enhanced' && <i style={{transform:`scaleX(${ease((local+1)/18)})`}}/>}
+      </div>
+    )}
     <div className="film-title" key={scene.chapter ?? index}>{scene.title}</div>
     <div className="film-board-label"><span>{scene.line ? 'VARIATION' : 'POSITION'}</span>
       <span>{status.move?.san ?? 'START'}{status.mate ? '  ·  CHECKMATE' : status.check ? '  ·  CHECK' : ''}</span></div>
