@@ -1,6 +1,6 @@
 import unittest
 
-import numpy as np
+from importlib.util import find_spec
 
 from casting_room import shortlist
 from final_callback import FINALISTS, transient_flags
@@ -12,7 +12,9 @@ class CallbackTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             shortlist({}, ("george", "george"))
 
+    @unittest.skipUnless(find_spec('numpy'), 'NumPy is installed by the callback workflow')
     def test_silence_and_late_impulse(self):
+        import numpy as np
         self.assertEqual(transient_flags(np.zeros(12000), 24000), [])
         data = np.zeros(12000)
         data[8000] = .25
