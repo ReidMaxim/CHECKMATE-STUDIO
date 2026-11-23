@@ -31,3 +31,18 @@ test('camera offsets obey zoom bounds and orientation',() => {
   const full = cameraPose({focus:null,zoom:1},'white');
   assert.deepEqual(full,{x:0,y:0,zoom:1});
 });
+
+test('result card requires a final hold and an in-scene reveal',() => {
+  const final = {...input.scenes.at(-1)!, preset:'final', moveAt:0, moveFrames:0};
+  const card = {title:'Lasker wins',score:'1-0',context:'Amsterdam · 1889',from:10};
+  const withCard = { ...input, audio:[], scenes:[{...final, resultCard:card}] };
+  assert.equal(storyboard.safeParse(withCard).success,true);
+  for (const scene of [
+    {...final, preset:'critical',resultCard:card},
+    {...final, moveFrames:10,resultCard:card},
+    {...final, resultCard:{...card,from:final.frames}},
+    {...final, resultCard:{...card,score:'*'}},
+  ]) {
+    assert.equal(storyboard.safeParse({...withCard,scenes:[scene]}).success,false);
+  }
+});

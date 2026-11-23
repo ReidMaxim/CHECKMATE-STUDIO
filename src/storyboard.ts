@@ -12,6 +12,7 @@ const scene = z.strictObject({
   camera, settleCamera: camera.optional(), moveAt: frame.optional(),
   highlights: z.array(square), arrows: z.array(z.tuple([square, square]).refine(([a,b]) => a !== b)),
   transition: z.enum(['cut', 'glide']), captions: z.array(cue), overlay: text.optional(),
+  resultCard: z.strictObject({from:frame, title:text.max(45), score:z.enum(['1-0','0-1','1/2-1/2']), context:z.string().max(60)}).optional(),
   evaluation: z.strictObject({label: text, whitePercent: z.number().min(0).max(100), source: text}).optional(),
 }).superRefine((value, context) => {
   if ((value.moveAt ?? 0) + value.moveFrames >= value.frames || (value.moveAt && !value.moveFrames)) context.addIssue({code:'custom',path:['moveFrames'],message:'Move must finish before scene ends'});
@@ -22,6 +23,7 @@ const scene = z.strictObject({
     }
     end = item.to;
   });
+  if (value.resultCard && (value.preset !== 'final' || value.moveFrames || value.resultCard.from >= value.frames)) context.addIssue({code:'custom',path:['resultCard'],message:'Result card requires a held final position'});
   if (value.preset === 'evaluation' && !value.evaluation) context.addIssue({code:'custom',message:'Evaluation shot requires attributed engine data'});
 });
 export const storyboard = z.strictObject({

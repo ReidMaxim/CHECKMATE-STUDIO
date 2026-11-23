@@ -4,11 +4,18 @@ import '@fontsource/playfair-display/latin-600.css';
 import '@fontsource/noto-sans-symbols-2/index.css';
 import {AbsoluteFill, Audio, Easing, interpolate, Sequence, useCurrentFrame} from 'remotion';
 import {Chessboard} from './Chessboard';
-import {cameraPose, timeline, type Project} from './storyboard';
+import {cameraPose, timeline, type Project, type Scene} from './storyboard';
 import './film.css';
 
 const ease = (value:number) => Easing.inOut(Easing.cubic)(Math.min(1,Math.max(0,value)));
 export type FilmProps = {project:Project; assetBase:string; narration?:boolean; flipped?:boolean};
+
+function ResultCard({card, opacity}:{card:NonNullable<Scene['resultCard']>; opacity:number}) {
+  return <aside className="film-result" style={{opacity}}>
+    <span>{card.title}</span><strong>{card.score.replaceAll('1/2','½').replace('-','–')}</strong>
+    {card.context && <small>{card.context}</small>}
+  </aside>;
+}
 
 export function Film({project,assetBase,narration=true,flipped=false}:FilmProps) {
   const frame = useCurrentFrame();
@@ -45,7 +52,9 @@ export function Film({project,assetBase,narration=true,flipped=false}:FilmProps)
         {project.branding.opening === 'enhanced' && <i style={{transform:`scaleX(${ease((local+1)/18)})`}}/>}
       </div>
     )}
-    <div className="film-title" key={scene.chapter ?? index}>{scene.title}</div>
+    {scene.resultCard && local >= scene.resultCard.from
+      ? <ResultCard card={scene.resultCard} opacity={ease((local-scene.resultCard.from+1)/14)}/>
+      : <div className="film-title" key={scene.chapter ?? index}>{scene.title}</div>}
     <div className="film-board-label"><span>{scene.line ? 'VARIATION' : 'POSITION'}</span>
       <span>{status.move?.san ?? 'START'}{status.mate ? '  ·  CHECKMATE' : status.check ? '  ·  CHECK' : ''}</span></div>
     <div className="film-board">
