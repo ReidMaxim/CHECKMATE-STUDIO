@@ -1,0 +1,16 @@
+{
+  "name": "STOCKFOOL",
+  "tagline": "Powered by Questionable Moves.",
+  "colors": {
+    "main": "#80AE95",
+    "accent": "#EDC888",
+    "dark": "#101A16",
+    "light": "#F7EFDD",
+    "warning": "#DB8171"
+  },
+  "display": "Custom uppercase wordmark; Playfair Display for headlines",
+  "body": "DM Sans for captions and supporting copy",
+  "opening": {"x": 92, "y": 147, "width": 205, "height": 42},
+  "closing": {"x": 92, "y": 1490, "width": 464, "height": 133},
+  "masterSha256": "03a102f26b36e2a1d7aca3bec5d975cf971a29cc2323d0b9ccb3251f3a42fb7e"
+}
