@@ -1,0 +1,32 @@
+name: Export Unhinged Grandmaster review
+on:
+  push:
+    branches: [mission-005-3-2-unhinged-grandmaster]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  preview:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24.22.3'
+      - uses: actions/download-artifact@v5
+        with:
+          github-token: ${{ github.token }}
+          run-id: 45113500379
+          name: final-move-review
+          path: out/approved-master
+      - run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends inkscape ffmpeg jq imagemagick fonts-liberation
+      - run: scripts/preview-unhinged-grandmaster.sh out/approved-master
+      - uses: actions/upload-artifact@v5
+        with:
+          name: unhinged-grandmaster-preview
+          path: out/unhinged-grandmaster
+          if-no-files-found: error
