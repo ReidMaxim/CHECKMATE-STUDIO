@@ -1,0 +1,10 @@
+{
+  "displayName": "The Unseen Move",
+  "tagline": "See what others miss.",
+  "accent": "#edc888",
+  "wordmark": "THE UNSEEN MOVE",
+  "signature": "silent accent rule",
+  "typography": "DM Sans",
+  "narrator": {"provider":"pocket","voice":"george","status":"human-approved","fallback":{"provider":"kokoro","voice":"af_heart"},"modelRevision":"d29db7978e464fb90cb3359ee0c69a273b9142cc","stateSha256":"9a78363b01ee91dcfd431b500e84350ef6f8e6e0639d5a34f1441cd6129d4dc7"},
+  "credit": "Synthetic narration generated with Kyutai Pocket TTS (English, CC BY 4.0), using George, Kyutai’s CSTR VCTK Corpus v0.92 p315 voice profile (Veaux, Yamagishi and MacDonald, CC BY 4.0). Model: https://huggingface.co/kyutai/pocket-tts-without-voice-cloning · Voice source: https://huggingface.co/kyutai/tts-voices · License: https://creativecommons.org/licenses/by/4.0/"
+}

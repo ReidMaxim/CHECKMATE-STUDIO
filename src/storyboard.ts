@@ -29,6 +29,7 @@ export const storyboard = z.strictObject({
   series:z.enum(['Chess Crimes','The Chess Lab','Chess History Files','Find the Move']), summary:text,
   sources:z.array(z.strictObject({label:text,url:z.url({protocol:/^https?$/})})),
   pgn:z.string(), fen:text.optional(), theme:z.enum(['forest','slate']), orientation:z.enum(['white','black']),
+  branding:z.strictObject({wordmark:text.max(36),accent:z.string().regex(/^#[0-9a-fA-F]{6}$/),typography:z.enum(['DM Sans','Playfair Display']),opening:z.enum(['none','minimal','enhanced'])}).optional(),
   presentation:z.enum(['director']).optional(), captionStyle:z.enum(['boxed','plain']).optional(),
   width:z.literal(1080), height:z.literal(1920), fps:z.literal(30),
   audio:z.array(z.strictObject({asset:z.string().regex(/^[\w-]+\.(mp3|wav|m4a)$/), start:frame,

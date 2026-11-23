@@ -1,0 +1,73 @@
+name: Produce first broadcast
+on:
+  push:
+    branches: [mission-005-first-broadcast]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  compare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-signature.txt
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24.22.3'
+          cache: npm
+      - name: Install isolated CPU TTS and test dependencies
+        run: |
+          npm ci
+          python -m venv "$RUNNER_TEMP/signature-venv"
+          echo "$RUNNER_TEMP/signature-venv/bin" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/signature-venv/bin/python" -m pip install --no-deps --index-url https://download.pytorch.org/whl/cpu torch==2.8.0+cpu
+          "$RUNNER_TEMP/signature-venv/bin/python" -m pip install -r requirements-signature.txt
+          "$RUNNER_TEMP/signature-venv/bin/python" -m pip check
+          if ! command -v ffprobe || ! command -v ffmpeg; then
+            sudo apt-get update
+            sudo apt-get install --yes --no-install-recommends ffmpeg
+          fi
+      - uses: actions/cache@v4
+        with:
+          path: |
+            .cache/kokoro
+            .cache/stockfish
+            .cache/signature-downloads
+          key: signature-models-${{ hashFiles('scripts/fetch-signature-models.sh', 'scripts/fetch-kokoro.sh', 'scripts/install-stockfish.sh') }}
+      - name: Fetch and verify model assets
+        env:
+          KOKORO_DOWNLOAD_TOKEN: ${{ github.token }}
+        run: |
+          bash scripts/install-stockfish.sh
+          bash scripts/fetch-kokoro.sh --fp32
+          bash scripts/fetch-signature-models.sh .cache/signature-downloads --casting
+      - run: npm test
+        env:
+          STOCKFISH_INTEGRATION: '1'
+      - name: Select and narrate a release candidate
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          STORY_MODEL: ${{ vars.STORY_MODEL }}
+        run: |
+          python scripts/producer.py examples/unseen/rook-ending.pgn examples/unseen/lasker-bauer.pgn \
+            --broadcast --tts-models .cache/signature-downloads --output out/broadcast
+      - name: Render the film and compare opening treatments
+        run: |
+          if [ ! -f out/broadcast/storyboard.json ]; then exit 0; fi
+          npm install --prefix "$RUNNER_TEMP/story-browser" --no-audit --no-fund @sparticuz/chromium@141.0.0
+          export CHROMIUM_BIN=$(node --input-type=module -e 'const c=(await import(process.env.RUNNER_TEMP+"/story-browser/node_modules/@sparticuz/chromium/build/esm/index.js")).default; process.stdout.write(await c.executablePath())')
+          npm run render -- unseen-documentary
+          python scripts/verify-video.py out/unseen-documentary.mp4 projects/unseen-documentary.json
+          cp out/unseen-documentary.mp4 out/broadcast/first-broadcast.mp4
+          python scripts/broadcast_assets.py --output out/broadcast
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: first-broadcast-review
+          path: out/broadcast
+          if-no-files-found: error
