@@ -1,0 +1,33 @@
+name: Package STOCKFOOL release
+on:
+  push:
+    branches: [mission-005-3-stockfool-identity]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24.22.3'
+      - uses: actions/download-artifact@v5
+        with:
+          github-token: ${{ github.token }}
+          run-id: 45113500379
+          name: final-move-review
+          path: out/approved-master
+      - name: Install vector and video export tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends inkscape ffmpeg jq fonts-liberation
+      - run: scripts/package-stockfool.sh out/approved-master out/stockfool
+      - uses: actions/upload-artifact@v5
+        with:
+          name: stockfool-first-release
+          path: out/stockfool
+          if-no-files-found: error
