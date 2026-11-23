@@ -1,0 +1,322 @@
+{
+  "title": "Why Give Up Both Bishops?",
+  "pgn": "examples/unseen/lasker-bauer.pgn",
+  "openingPly": 28,
+  "pinnedComment": "Pause after the second bishop comes off. Which white piece would you bring into the attack next, and how would you get it there?",
+  "facts": {
+    "shelter": [
+      28,
+      "pieces",
+      {
+        "g8": "k",
+        "g7": "p",
+        "h7": "p",
+        "g1": "K",
+        "f1": "R",
+        "e2": "Q",
+        "d3": "B",
+        "e5": "B"
+      }
+    ],
+    "first": [
+      29,
+      "move",
+      "Bxh7+"
+    ],
+    "first-accepted": [
+      30,
+      "move",
+      "Kxh7"
+    ],
+    "queen": [
+      31,
+      "move",
+      "Qxh5+"
+    ],
+    "retreat": [
+      32,
+      "move",
+      "Kg8"
+    ],
+    "second": [
+      33,
+      "move",
+      "Bxg7"
+    ],
+    "second-no-check": [
+      33,
+      "pieces",
+      {
+        "g8": "k",
+        "g7": "B",
+        "h7": null
+      }
+    ],
+    "second-accepted": [
+      34,
+      "move",
+      "Kxg7"
+    ],
+    "chase": [
+      35,
+      "move",
+      "Qg4+"
+    ],
+    "king-edge": [
+      36,
+      "move",
+      "Kh7"
+    ],
+    "lift": [
+      37,
+      "move",
+      "Rf3"
+    ],
+    "pawn": [
+      38,
+      "move",
+      "e5"
+    ],
+    "swing": [
+      39,
+      "move",
+      "Rh3+"
+    ],
+    "block": [
+      40,
+      "move",
+      "Qh6"
+    ],
+    "queen-taken": [
+      41,
+      "move",
+      "Rxh6+"
+    ],
+    "rook-taken": [
+      42,
+      "move",
+      "Kxh6"
+    ]
+  },
+  "scripts": {
+    "A": {
+      "angle": "Two pawns appear to be minor targets. Their disappearance makes the attack possible.",
+      "lines": [
+        [
+          28,
+          "Would you give up both bishops just to take these two pawns? Keep an eye on where Black's king goes.",
+          [
+            "shelter",
+            "first",
+            "second",
+            "king-edge"
+          ]
+        ],
+        [
+          30,
+          "The king takes the first bishop. Now the queen can come in with check.",
+          [
+            "first-accepted",
+            "queen"
+          ]
+        ],
+        [
+          33,
+          "The second bishop doesn't even give check. It takes the pawn right in front of the king.",
+          [
+            "second",
+            "second-no-check"
+          ]
+        ],
+        [
+          36,
+          "Black takes again, and the queen drives the king to the edge. Now look at the rook.",
+          [
+            "second-accepted",
+            "chase",
+            "king-edge",
+            "lift"
+          ]
+        ],
+        [
+          37,
+          "It comes up first. Then it swings across.",
+          [
+            "lift",
+            "swing"
+          ]
+        ],
+        [
+          41,
+          "Black puts the queen in the way. That's what two missing pawns just cost.",
+          [
+            "block",
+            "queen-taken",
+            "rook-taken",
+            "first",
+            "second"
+          ]
+        ]
+      ]
+    },
+    "B": {
+      "angle": "Follow the apparently distant rook. The double sacrifice makes its sideways arrival matter.",
+      "lines": [
+        [
+          28,
+          "Look at that white rook. It's still on the back rank. In a few moves, Black will put a queen in its path.",
+          [
+            "shelter",
+            "lift",
+            "swing",
+            "block"
+          ]
+        ],
+        [
+          30,
+          "Start with the pawn beside the king. The first bishop takes it, and the king takes back.",
+          [
+            "first",
+            "first-accepted"
+          ]
+        ],
+        [
+          34,
+          "The queen checks, the king retreats, and a second bishop takes the other pawn. Both bishops are gone.",
+          [
+            "queen",
+            "retreat",
+            "second",
+            "second-accepted"
+          ]
+        ],
+        [
+          37,
+          "Now the queen has driven the king to the edge and the rook can get there in two steps.",
+          [
+            "chase",
+            "king-edge",
+            "lift",
+            "swing"
+          ]
+        ],
+        [
+          41,
+          "By the time the rook reaches the open file, Black blocks with the queen. Watch what the rook takes.",
+          [
+            "swing",
+            "block",
+            "queen-taken"
+          ]
+        ]
+      ]
+    }
+  },
+  "selectedScript": "A",
+  "shots": {
+    "28": [
+      "Two pawns",
+      "establishing",
+      0.1,
+      0.55,
+      [
+        "g7",
+        "h7"
+      ]
+    ],
+    "29": [
+      "First bishop",
+      "critical",
+      0.1,
+      0.75
+    ],
+    "30": [
+      "First bishop",
+      "critical",
+      0.8,
+      0.45
+    ],
+    "31": [
+      "The queen enters",
+      "threat",
+      0.1,
+      0.65
+    ],
+    "32": [
+      "The king retreats",
+      "threat",
+      0.1,
+      0.55
+    ],
+    "33": [
+      "Second bishop",
+      "reveal",
+      0.9,
+      0.65
+    ],
+    "34": [
+      "Second bishop",
+      "critical",
+      0.1,
+      0.65
+    ],
+    "35": [
+      "Out of shelter",
+      "threat",
+      0.1,
+      0.55
+    ],
+    "36": [
+      "Out of shelter",
+      "threat",
+      0.7,
+      0.3
+    ],
+    "37": [
+      "The rook lifts",
+      "critical",
+      0.7,
+      0.35
+    ],
+    "38": [
+      "The rook lifts",
+      "threat",
+      0.1,
+      0.55
+    ],
+    "39": [
+      "The rook arrives",
+      "reveal",
+      0.1,
+      0.95
+    ],
+    "40": [
+      "The queen blocks",
+      "reveal",
+      0.1,
+      0.85
+    ],
+    "41": [
+      "The queen falls",
+      "reveal",
+      0.8,
+      0.35
+    ],
+    "42": [
+      "The rook is recaptured",
+      "final",
+      0.1,
+      2.0
+    ]
+  },
+  "chapters": [
+    28,
+    33,
+    37
+  ],
+  "engagement": {
+    "placement": "opening",
+    "positionFact": "second-accepted",
+    "reason": "The opening question gives the two pawn captures a consequence to watch for. The optional comment asks viewers to find the rook lift."
+  }
+}
