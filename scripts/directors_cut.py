@@ -155,6 +155,8 @@ def produce(spec, provider, model_dir, voice, rate, *, project=None, stem="direc
             scene["chapter"] = shot["chapter"]
         if "line" in shot:
             scene["line"] = shot["line"]
+        if "resultCard" in shot:
+            scene["resultCard"] = dict(shot["resultCard"], **{"from": cues[-1]["from_"]})
         if "settleCamera" in shot:
             scene["settleCamera"] = shot["settleCamera"]
         scene.update(frames=duration, moveAt=move_at, moveFrames=MOVE_FRAMES if animated else 0,

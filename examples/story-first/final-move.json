@@ -1,0 +1,88 @@
+{
+  "facts": {
+    "rook-check": [
+      39,
+      "pieces",
+      {
+        "h3": "R",
+        "h6": null,
+        "h7": "k",
+        "c6": "q"
+      }
+    ],
+    "queen-interposes": [
+      40,
+      "pieces",
+      {
+        "h3": "R",
+        "h6": "q",
+        "h7": "k"
+      }
+    ],
+    "exchange-settled": [
+      42,
+      "pieces",
+      {
+        "h6": "k",
+        "g4": "Q",
+        "f8": "r",
+        "a8": "r",
+        "a1": "R"
+      }
+    ]
+  },
+  "outcome": {
+    "kind": "recorded-victory",
+    "question": "Would you give up both bishops just to take these two pawns?",
+    "payoff": "With the pawns gone, the rook checks along the open h-file. Bauer interposes the queen and trades it for that rook.",
+    "payoffRefs": [
+      "rook-check",
+      "queen-interposes",
+      "queen-taken",
+      "rook-taken"
+    ],
+    "options": {
+      "A": {
+        "text": "The queen blocks the rook's check. Lasker takes it and loses the rook in return. The game continued, and Lasker went on to win.",
+        "refs": [
+          "rook-check",
+          "queen-interposes",
+          "queen-taken",
+          "rook-taken",
+          "recorded-result"
+        ]
+      },
+      "B": {
+        "text": "Those bishops cleared a path for the rook. Bauer traded his queen for it to stop the check. The game went on, and Lasker won.",
+        "refs": [
+          "first",
+          "second",
+          "rook-check",
+          "queen-interposes",
+          "queen-taken",
+          "rook-taken",
+          "recorded-result"
+        ],
+        "spokenParts": [
+          "Those bishops cleared a path for the rook. Bauer traded his queen for it to stop the check.",
+          "The game went on, and Lasker won."
+        ]
+      }
+    },
+    "selected": "B",
+    "reason": "Returns to the opening question, makes both sides of the exchange explicit, and leaves the recorded win as the last thought.",
+    "bridge": {
+      "text": "Watch what comes off the board.",
+      "refs": [
+        "rook-check",
+        "queen-interposes"
+      ]
+    },
+    "card": true,
+    "cardLabel": "Lasker",
+    "enginePlies": [
+      39,
+      42
+    ]
+  }
+}
