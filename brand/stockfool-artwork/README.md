@@ -5,7 +5,7 @@ The artwork source is [Stockfool: Questionable Moves.png](https://chatgpt.com/li
 ## Assets for review
 
 - **Avatar context** keeps more of the shoulders and chess pattern. **Avatar close** foregrounds the crown, face and question mark. Both have feathered crop variants on transparent canvases.
-- **Micro icon** uses the close crop without lettering, at a reduced size. No facial details were redrawn. Review samples at 48, 96 and 256 px use the same native resolutions.
+- **Micro icon** uses a tighter crop without lettering, at a reduced size. No facial details were redrawn. Review samples at 48, 96 and 256 px use the same native resolutions.
 - **Channel lockup and banner** pair the close crop with the artwork’s original STOCKFOOL lettering and tagline. The banner keeps the lockup in the central band.
 - **Vertical cover** uses the full artwork and a separate episode title.
 - **Documentary A** previews the lettering-only opening. **Documentary B** previews the art lockup over the existing opening, a small corner mark, and closing branding after the final caption. Both are review exports.

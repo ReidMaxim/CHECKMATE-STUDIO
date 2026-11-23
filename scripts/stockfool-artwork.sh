@@ -18,7 +18,9 @@ crop_avatar() {
 }
 crop_avatar 680x680+425+0 avatar-context
 crop_avatar 510x510+505+0 avatar-close
-convert "$out/assets/avatar-close-transparent.png" -resize 512x512 "$out/assets/micro-icon.png"
+crop_avatar 455x455+535+0 micro-crop
+convert "$out/assets/micro-crop-transparent.png" -resize 512x512 "$out/assets/micro-icon.png"
+rm "$out/assets/micro-crop.png" "$out/assets/micro-crop-transparent.png"
 for variant in avatar-context avatar-close micro-icon; do
   for pixels in 48 96 256; do
     convert "$out/assets/$variant.png" -resize "${pixels}x${pixels}" "$out/review/$variant-$pixels.png"
@@ -46,7 +48,7 @@ for i in "${!marks[@]}"; do
     if [[ "$pixels" == 256 ]]; then continue; fi
     small+=("$out/review/${marks[i]}-$pixels.png" -geometry "+$((center-pixels/2))+$y" -composite)
   done
-  small+=("$out/review/${marks[i]}-256.png" -resize 170x170 -geometry "+$((center-85))+260" -composite)
+  small+=(\( "$out/review/${marks[i]}-256.png" -resize 170x170 \) -geometry "+$((center-85))+260" -composite)
 done
 convert "${small[@]}" "$out/review/48-96-comparison.png"
 montage "$out"/review/{avatar-context,avatar-close,micro-icon}-256.png -tile 3x1 -geometry +16+12 -background "$palette" "$out/review/256-crop-comparison.png"
