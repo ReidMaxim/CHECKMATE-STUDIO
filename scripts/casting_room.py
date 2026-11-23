@@ -27,8 +27,12 @@ def score(review):
                if canonical(item["expected"]) != canonical(item["recognized"]))
 
 
-def shortlist(candidates):
+def shortlist(candidates, override=None):
     """Advance the two strongest technical candidates for listener review."""
+    if override is not None:
+        if len(set(override)) != 2 or len(override) != 2 or any(name not in CASTING_PROFILES for name in override):
+            raise ValueError("Human shortlist requires two distinct catalog voices")
+        return list(override)
     def rank(name):
         row = candidates[name]
         return row["score"], abs(row["seconds"] - 18), name
